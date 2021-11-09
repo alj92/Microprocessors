@@ -15,10 +15,4 @@ loop:
 	movff 	0x06, PORTB
 	incf 	0x06, W, A
 test:
-	movwf	0x06, A	    ; Test for end of loop condition
-	movlw 	0x63
-	cpfsgt 	0x06, A
-	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start
-
-	end	main
+	

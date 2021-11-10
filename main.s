@@ -20,3 +20,6 @@ SPI_MasterTransmit: ;Start transmission of data (held in W)
 	bra Wait_Transmit
 	bcf SSP2IF  ;clear interrupt flag
 	return
+	
+	
+; Heyyy

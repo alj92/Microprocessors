@@ -7,13 +7,9 @@
 Start:	
     movlw	0x00	;all bits in
     movwf	TRISD, A ;port D direction Register
-    movlb	0x0f	;PADCFG1 (and RDPU) are not in access RAM
-    bsf	RDPU	;turn om pull-ups for Port D
-	
-	
-	
-    call SPI_MasterInit
-    call SPI_MasterTransmit
+    movff	0x00, PORTD	
+    call	SPI_MasterInit
+    call	SPI_MasterTransmit
 		
 
 SPI_MasterInit:	    ;Set Clock edge to negative

@@ -2,6 +2,10 @@
 
 psect	code, abs
 	
+call SPI_MasterInit
+call SPI_MasterTransmit
+		
+	
 SPI_MasterInit:	    ;Set Clock edge to negative
     bcf CKE2	    ; CKE bit in SSP2STAT
     ; MSSP enable; CKP = 1, SPI master, clock = Fosc / 64 (1MHz)
@@ -9,7 +13,7 @@ SPI_MasterInit:	    ;Set Clock edge to negative
     movwf  SSP2CON1, A
     ; SDO2 output ;  SCK2 output
     bcf TRISD, PORTD_SDO2_POSN, A  ; SDO2 output
-    bcf TRISD, PORTD_SDK2_POSN, A  ; SDK2 output
+    bcf TRISD, PORTD_SCK2_POSN, A  ; SDK2 output
     return
     
 SPI_MasterTransmit: ;Start transmission of data (held in W)

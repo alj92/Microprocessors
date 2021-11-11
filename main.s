@@ -1,11 +1,21 @@
-#include <xc.inc>
+    #include <xc.inc>
 
-psect	code, abs
+    psect	code, abs
+
+    goto Start
 	
-call SPI_MasterInit
-call SPI_MasterTransmit
+Start:	
+    movlw	0x00	;all bits in
+    movwf	TRISD, A ;port D direction Register
+    movlb	0x0f	;PADCFG1 (and RDPU) are not in access RAM
+    bsf	RDPU	;turn om pull-ups for Port D
+	
+	
+	
+    call SPI_MasterInit
+    call SPI_MasterTransmit
 		
-	
+
 SPI_MasterInit:	    ;Set Clock edge to negative
     bcf CKE2	    ; CKE bit in SSP2STAT
     ; MSSP enable; CKP = 1, SPI master, clock = Fosc / 64 (1MHz)

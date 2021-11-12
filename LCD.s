@@ -11,7 +11,7 @@ LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 
 	LCD_E	EQU 5	; LCD enable bit
     	LCD_RS	EQU 4	; LCD register select bit
-
+;tocommit
 psect	lcd_code,class=CODE
     
 LCD_Setup:

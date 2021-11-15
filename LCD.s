@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message, LCD_Clear
+global  LCD_Setup, LCD_Write_Message, LCD_Clear, LCD_2ndline
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -60,6 +60,7 @@ LCD_Loop_message:
 LCD_Send_Byte_I:	    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp, A
 	swapf   LCD_tmp, W, A   ; swap nibbles, high nibble goes first
+
 	andlw   0x0f	    ; select just low nibble
 	movwf   LATB, A	    ; output data bits to LCD
 	bcf	LATB, LCD_RS, A	; Instruction write clear RS bit
@@ -136,12 +137,18 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 
 	
 LCD_Clear:
+    	movlw	200		; wait 40us
+	call	LCD_delay_x4us
     	movlw	0000000010	; display clear
 	call	LCD_Send_Byte_I
-	movlw	10		; wait 40us
-	call	LCD_delay_x4us
 	return
 
+LCD_2ndline:
+	movlw	11000000
+	call	LCD_Send_Byte_I
+	return
+
+	
     end
 
 

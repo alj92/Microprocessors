@@ -18,5 +18,16 @@ row: 	movlw	0x0F	; configuer PORTE 4-7 as outputs and PORTE 0-3 as inputs
 	movwf	TRISE		; setting the inputs
 	movlw	0x0
 	movwf	PORTE
+	movwf	0x01
+	call	0x01
+
+column:
+	movlw	0xF0	; configuer PORTE 4-7 as inputs and PORTE 0-3 as outputs
+	movwf	TRISE		; setting the inputs
+	movlw	0x0
+	movwf	PORTE
+	movlw	PORTE 
+	movwf	0x02
+	call	0x02
 
 	end	main

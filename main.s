@@ -21,16 +21,18 @@ setup:
 row: 	movlw	0x0F	; configuer PORTE 4-7 as outputs and PORTE 0-3 as inputs
 	movwf	TRISE		; setting the inputs
 	call	delay		;insert delay
+	call	delay
 	movlw	0x0
 	movwf	PORTE
-        movff	PORTE, 010 ;moving value to designated file register
+        movff	PORTE, 0x10 ;moving value to designated file register
 	;use OR command to obtain keypad value and display on PORTF
-	;movwf	010,PORTF
+	movff	0x10,PORTF
 
 
 column:
 	movlw	0xF0	; configuer PORTE 4-7 as inputs and PORTE 0-3 as outputs
 	movwf	TRISE		; setting the inputs
+	call	delay
 	call	delay
 	movlw	0x0
 	movwf	PORTE
@@ -40,7 +42,7 @@ column:
 
 delay: 
     movf	0x06, A
-    movlw	0x1F4
+    movlw	0xFDE8
     decfsz	0x06, A
     bra		delay
     

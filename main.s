@@ -40,7 +40,7 @@ column:
 
 delay: 
     movf	0x06, A
-    movlw	0x63
+    movlw	0x1F4
     decfsz	0x06, A
     bra		delay
     

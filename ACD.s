@@ -35,32 +35,33 @@ HEX_Convert:
     
     ;Multiplying high by high
     andlw   0x0F    ;using the highest 4 bits first
-    movf    VALH1, W	;multiplying highest bits from VAL1*VAL2
-    mulwf   VALH2
+    movf    VALH1, W
+    mulwf   VALH2   ;multiplying highest bits VAL1*VAL2
     movff   PRODH, RESH1
     movff   PRODL, RESH2
     
     ;Multiplying low by high
-    movf    VALL1, W	;multiplying VALL1*VALH2
-    mulwf   VALH2
+    movf    VALL1, W	
+    mulwf   VALH2   ;multiplying VALL1*VALH2
     ;summing cross products
     movf    PRODL, W	;moving multiplication result of VALL1*VALH2 from file register to W
     addwf   RESL1, F	;add low result from both multiplications (low*high) + (low*low)
     movf    PRODH, W	
-    addwf  RESH2, F	;add high result from both multiplications (low*high) + (low*low)
+    addwf   RESH2, F	;add high result from both multiplications (low*high) + (high*high)
     clrf    WREG	;clearing working register 
-    addwfc  RESH1, F
+    addwfc  RESH1, F	;adding W+carry bit to F
     
     ;Multiplying high by low
-    movf    VALH1, W	;multiplying VALH1*VALL2
-    mulwf   VALL2
+    movf    VALH1, W	
+    mulwf   VALL2   ;multiplying VALH1*VALL2
     ;summing cross products
     movf    PRODL, W
-    addwf   RESL1, F
+    addwf   RESL1, F	;add high result from both multiplications (high*low) + (low*low)
     movf    PRODH, W
-    addwf  RESH2, F
-    clrf    WREG
-    addwfc  RESH1, F
+    addwf  RESH2, F	;add high result from both multiplications (low*high) + (high*high)
+    clrf    WREG	;clearing working register 
+    addwfc  RESH1, F	;adding W+carry to F
+    return
 	
 
 end

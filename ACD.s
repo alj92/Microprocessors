@@ -19,9 +19,48 @@ ADC_Setup:
 
 ADC_Read:
 	bsf	GO	    ; Start conversion by setting GO bit in ADCON0
+	call HEX_Convert
 adc_loop:
 	btfsc   GO	    ; check to see if finished
 	bra	adc_loop
 	return
+	
+HEX_Convert:
+    ;Multiplyig low by low
+    andlw   0xF0    ;using the lowest 4 bits first
+    movf    VALL1, W ;VAL1 stored in W
+    mulwf   VALL2    ;multiplying lowest bits from VAL1*VAL2
+    movff   PRODH, RESL2	;result stored in sfr PRODH:PRODL
+    movff   PRODL, RESL1
+    
+    ;Multiplying high by high
+    andlw   0x0F    ;using the highest 4 bits first
+    movf    VALH1, W	;multiplying highest bits from VAL1*VAL2
+    mulwf   VALH2
+    movff   PRODH, RESH1
+    movff   PRODL, RESH2
+    
+    ;Multiplying low by high
+    movf    VALL1, W	;multiplying VALL1*VALH2
+    mulwf   VALH2
+    ;summing cross products
+    movf    PRODL, W	;moving multiplication result of VALL1*VALH2 from file register to W
+    addwf   RESL1, F	;add low result from both multiplications (low*high) + (low*low)
+    movf    PRODH, W	
+    addwf  RESH2, F	;add high result from both multiplications (low*high) + (low*low)
+    clrf    WREG	;clearing working register 
+    addwfc  RESH1, F
+    
+    ;Multiplying high by low
+    movf    VALH1, W	;multiplying VALH1*VALL2
+    mulwf   VALL2
+    ;summing cross products
+    movf    PRODL, W
+    addwf   RESL1, F
+    movf    PRODH, W
+    addwf  RESH2, F
+    clrf    WREG
+    addwfc  RESH1, F
+	
 
 end

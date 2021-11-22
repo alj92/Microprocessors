@@ -1,9 +1,14 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read    
+global  ADC_Setup, ADC_Read   
+    
     
 psect	adc_code, class=CODE
-    
+ 
+RSL1:    ds 1
+RSL2:    ds 1
+RSH1:    ds 1
+RSH1:    ds 1
 ADC_Setup:
 	bsf	TRISA, PORTA_RA0_POSN, A  ; pin RA0==AN0 input
 	movlb	0x0f
@@ -19,14 +24,22 @@ ADC_Setup:
 
 ADC_Read:
 	bsf	GO	    ; Start conversion by setting GO bit in ADCON0
-	call HEX_Convert
+	;call HEX_Convert
 adc_loop:
 	btfsc   GO	    ; check to see if finished
 	bra	adc_loop
 	return
 	
-HEX_Convert:
+Data:
     ;Multiplyig low by low
+   ; db	    1234, 0x02
+    VALL1   EQU	12
+    VALL2    EQU 56
+    VALH1   EQU 34
+    VALH2   EQU 78
+    
+HEX_Convert:
+    movlw   VALL1
     andlw   0xF0    ;using the lowest 4 bits first
     movf    VALL1, W ;VAL1 stored in W
     mulwf   VALL2    ;multiplying lowest bits from VAL1*VAL2

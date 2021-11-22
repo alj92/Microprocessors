@@ -5,10 +5,15 @@ global  ADC_Setup, ADC_Read
     
 psect	adc_code, class=CODE
  
-RSL1:    ds 1
-RSL2:    ds 1
-RSH1:    ds 1
-RSH1:    ds 1
+RESL1:    ds 1
+RESL2:    ds 1
+RESH1:    ds 1
+RESH2:    ds 1
+VALL1:    ds 1
+VALL2:    ds 1
+VALH1:    ds 1
+VALH2:    ds 1
+    
 ADC_Setup:
 	bsf	TRISA, PORTA_RA0_POSN, A  ; pin RA0==AN0 input
 	movlb	0x0f
@@ -33,44 +38,48 @@ adc_loop:
 Data:
     ;Multiplyig low by low
    ; db	    1234, 0x02
-    VALL1   EQU	12
-    VALL2    EQU 56
-    VALH1   EQU 34
-    VALH2   EQU 78
+   movlw    0x12
+   movwf    VALL1, A
+   movlw    0x15
+   movwf    VALL2, A
+   movlw    0x18
+   movwf    VALH1, A
+   movlw    0x20
+   movwf    VALH2, A
+   
     
 HEX_Convert:
-    movlw   VALL1
     andlw   0xF0    ;using the lowest 4 bits first
-    movf    VALL1, W ;VAL1 stored in W
+    movf    VALL1, W,A ;VAL1 stored in W
     mulwf   VALL2    ;multiplying lowest bits from VAL1*VAL2
     movff   PRODH, RESL2	;result stored in sfr PRODH:PRODL
     movff   PRODL, RESL1
     
     ;Multiplying high by high
     andlw   0x0F    ;using the highest 4 bits first
-    movf    VALH1, W
+    movf    VALH1, W,A
     mulwf   VALH2   ;multiplying highest bits VAL1*VAL2
     movff   PRODH, RESH1
     movff   PRODL, RESH2
     
     ;Multiplying low by high
-    movf    VALL1, W	
+    movf    VALL1, W,A
     mulwf   VALH2   ;multiplying VALL1*VALH2
     ;summing cross products
-    movf    PRODL, W	;moving multiplication result of VALL1*VALH2 from file register to W
+    movf    PRODL, W,A	;moving multiplication result of VALL1*VALH2 from file register to W
     addwf   RESL1, F	;add low result from both multiplications (low*high) + (low*low)
-    movf    PRODH, W	
+    movf    PRODH, W,A	
     addwf   RESH2, F	;add high result from both multiplications (low*high) + (high*high)
     clrf    WREG	;clearing working register 
     addwfc  RESH1, F	;adding W+carry bit to F
     
     ;Multiplying high by low
-    movf    VALH1, W	
+    movf    VALH1, W,A	
     mulwf   VALL2   ;multiplying VALH1*VALL2
     ;summing cross products
-    movf    PRODL, W
+    movf    PRODL, W,A
     addwf   RESL1, F	;add high result from both multiplications (high*low) + (low*low)
-    movf    PRODH, W
+    movf    PRODH, W,A
     addwf  RESH2, F	;add high result from both multiplications (low*high) + (high*high)
     clrf    WREG	;clearing working register 
     addwfc  RESH1, F	;adding W+carry to F

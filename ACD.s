@@ -1,11 +1,12 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read   
+global  ADC_Setup, ADC_Read, HEX_Convert
     
+PSECT udata_acs_ovr,space=1,ovrld,class=COMRAM
     
-psect	adc_code, class=CODE
+LCD_hex_tmp:	ds 1
  
-RESL1:    ds 1
+RESL1:    ds 1	    ;reserve one byte of memory
 RESL2:    ds 1
 RESH1:    ds 1
 RESH2:    ds 1
@@ -13,6 +14,7 @@ VALL1:    ds 1
 VALL2:    ds 1
 VALH1:    ds 1
 VALH2:    ds 1
+psect	adc_code, class=CODE
     
 ADC_Setup:
 	bsf	TRISA, PORTA_RA0_POSN, A  ; pin RA0==AN0 input
@@ -29,26 +31,23 @@ ADC_Setup:
 
 ADC_Read:
 	bsf	GO	    ; Start conversion by setting GO bit in ADCON0
-	;call HEX_Convert
+;	call HEX_Convert
 adc_loop:
 	btfsc   GO	    ; check to see if finished
 	bra	adc_loop
 	return
-	
-Data:
-    ;Multiplyig low by low
-   ; db	    1234, 0x02
-   movlw    0x12
-   movwf    VALL1, A
-   movlw    0x15
-   movwf    VALL2, A
-   movlw    0x18
-   movwf    VALH1, A
-   movlw    0x20
-   movwf    VALH2, A
-   
+
     
 HEX_Convert:
+    movf    ADRESL, W,A
+    movwf    VALL1, A
+    movf    ADRESL, W,A
+    movwf    VALL2, A
+    movf    ADRESH, W,A
+    movwf    VALH1, A
+    movf    ADRESH, W,A
+    movwf    VALH2, A
+    
     andlw   0xF0    ;using the lowest 4 bits first
     movf    VALL1, W,A ;VAL1 stored in W
     mulwf   VALL2    ;multiplying lowest bits from VAL1*VAL2

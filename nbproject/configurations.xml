@@ -14,6 +14,10 @@
                    projectFiles="true">
       <itemPath>Simple1.asm</itemPath>
       <itemPath>config.asm</itemPath>
+      <itemPath>LCDProject.s</itemPath>
+      <itemPath>Main.s</itemPath>
+      <itemPath>Findfrequency.s</itemPath>
+      <itemPath>ADC.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -36,7 +40,7 @@
         <platform>4</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.0.40"/>
+        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.4.87"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>

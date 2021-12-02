@@ -2,16 +2,16 @@
 
 psect	code, abs
 
-goto Start
+goto start
 
-extrn	sensor_setup
+extrn	sensor_setup, portcsetup, loop
     
 psect	code, abs	
 
 start: 
-    call sensor_setup
-    
-    
+    call    portcsetup
+    call    sensor_setup
+    call    loop
     
     
        

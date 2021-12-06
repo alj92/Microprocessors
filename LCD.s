@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex
+global  LCD_Setup, LCD_Write_Message
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1	; reserve 1 byte for variable LCD_cnt_l
@@ -58,7 +58,6 @@ LCD_Write_Instruction: ; Message stored at W
 LCD_Write_Message:	    ; Message stored at FSR2, length stored in W
 	movwf   LCD_counter, A
 
-	
 	
 LCD_Loop_message:
 	movf    POSTINC2, W, A
@@ -145,9 +144,9 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	return			; carry reset so return
 
 
-end
-
-
+;end
+    
+    
 ;LCD_Write_Hex:			; Writes byte stored in W as hex
 ;	movwf	LCD_hex_tmp, A
 ;	swapf	LCD_hex_tmp, W, A	; high nibble first

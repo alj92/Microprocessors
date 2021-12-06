@@ -7,8 +7,9 @@
  
 extrn sensor_setup, portcsetup, loop, sensorread
 extrn UART_Setup, UART_Transmit_Message  ; external uart subroutines
-extrn LCD_Setup, LCD_Write_Message, LCD_Write_Hex ; external LCD subroutines
+extrn LCD_Setup, LCD_Write_Message ; external LCD subroutines
 extrn ADC_Setup, ADC_Read               ; external ADC subroutines   
+extrn initiate              ; external timer subroutine
 
 psect udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
@@ -30,13 +31,13 @@ myTable:
 myTable2:
 	db            'T','a','k','e',' ','A',' ','B','r','e','a','k','!',0x0a
                                           ; message, plus carriage return
-           myTable_l   EQU  13      ; length of data
+           myTable_2   EQU  13      ; length of data
            align  2
 
 myTable3:
 	db            'R','e','a','d','j','u','s','t',' ','W','a','t','c','h',0x0a
                                           ; message, plus carriage return
-           myTable_l   EQU  14      ; length of data
+           myTable_3   EQU  14      ; length of data
            align  2
 
 psect code, abs   
@@ -46,14 +47,15 @@ goto  setup
            ; ******* Programme FLASH read Setup Code ***********************
 setup:          bcf     CFGS ; point to Flash program memory 
            bsf     EEPGD         ; access Flash program memory
-           call     UART_Setup         ; setup UART
+	   call initiate
+	   call     UART_Setup         ; setup UART
            call     LCD_Setup  ; setup UART
            call     ADC_Setup ; setup ADC
            call    portcsetup
            call    sensor_setup
            call    loop
            call    sensorread
-           goto  start   
+	   goto  start   
    
 
 start:
@@ -68,17 +70,17 @@ start:
            movlw         myTable_l   ; bytes to read
            movwf         counter, A             ; our counter register
  
-loop: tblrd*+                             ; one byte from PM to TABLAT, increment TBLPRT
-           movff TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0   
-           decfsz          counter, A             ; count down to zero
-           bra    loop             ; keep going until finished
-           movlw         myTable_l   ; output message to UART
-           lfsr     2, myArray
-           call     UART_Transmit_Message
-           movlw         myTable_l-1          ; output message to LCD
-                                          ; don't send the final carriage return to LCD
-           lfsr     2, myArray
-           call     LCD_Write_Message
+;loop:	   tblrd*+                             ; one byte from PM to TABLAT, increment TBLPRT
+;           movff TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0   
+;           decfsz          counter, A             ; count down to zero
+;           bra    loop             ; keep going until finished
+;           movlw         myTable_l   ; output message to UART
+;           lfsr     2, myArray
+;           call     UART_Transmit_Message
+;           movlw         myTable_l-1          ; output message to LCD
+;                                          ; don't send the final carriage return to LCD
+;           lfsr     2, myArray
+;           call     LCD_Write_Message
 
    
 

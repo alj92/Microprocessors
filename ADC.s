@@ -11,7 +11,7 @@ PSECT udata_acs_ovr,space=1,ovrld,class=COMRAM
 psect	adc_code, class=CODE
     
 ADC_Setup:
-	bsf	TRISF, PORTE_RE0_POSN, A  ; pin RF0==AN0 input
+	bsf	TRISE, PORTE_RE0_POSN, A  ; pin RE0==AN0 input
 	movlb	0x0f
 	bsf	ANSEL0	    ; set AN0 to analog
 	movlb	0x00

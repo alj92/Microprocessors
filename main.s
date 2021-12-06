@@ -4,39 +4,11 @@
 
  
 extrn sensor_setup, portcsetup, loopsensor, sensorread	    ; external heart rate click
-extrn UART_Setup, UART_Transmit_Message			    ; external uart subroutines
+;extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
 extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subroutines
 extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
-
-psect udata_acs	    ; reserve data space in access ram
-counter:    ds 1    ; reserve one byte for a counter variable
-delay_count:ds 1    ; reserve one byte for counter in the delay routine
-
-
-psect udata_bank4   ; reserve data anywhere in RAM (here at 0x400)
-myArray:    ds 0x80 ; reserve 128 bytes for message data
-
-psect data   
-           ; ******* myTable, data in programme memory, and its length *****
-
-myTable:
-        db      'K','e','e','p',' ','G','o','i','n','g','!',0x0a
-                                                     ; message, plus carriage return
-           myTable_l   EQU  12      ; length of data
-           align  2
-
-myTable2:
-	db            'T','a','k','e',' ','A',' ','B','r','e','a','k','!',0x0a
-                                          ; message, plus carriage return
-           myTable_2   EQU  13      ; length of data
-           align  2
-
-myTable3:
-	db            'R','e','a','d','j','u','s','t',' ','W','a','t','c','h',0x0a
-                                          ; message, plus carriage return
-           myTable_3   EQU  14      ; length of data
-           align  2
+extrn BPM, goodmessage, restmessage, adjustmessage	    ; external function to write the BPM= and the message on the LCD
 
 psect code, abs   
 rst:     
@@ -47,62 +19,60 @@ rst:
 	  
 setup:     bcf     CFGS ; point to Flash program memory 
            bsf     EEPGD         ; access Flash program memory
-	   call	   initiate
-	   call    UART_Setup       ; setup UART
+;	   call	   initiate
            call    LCD_Setup	    ; setup LCD: PORTB
-           call    ADC_Setup	    ; setup ADC: PORTE
-           call    portcsetup	    ; clear everything PORTC
-           call    sensor_setup	    ; setup heart rate click: PORTC
+	   
+;          call    ADC_Setup	    ; setup ADC: PORTE
+;          call    portcsetup	    ; clear everything PORTC
+;          call    sensor_setup	    ; setup heart rate click: PORTC
+	   call	   clear
 	   goto	   start 
     
 	   ;********* Main Programme *************
-clear:
-	movlw	00000001B
-	call	LCD_Transmit_Instruction
-	return
+;clear:
+;	movlw	00000001B
+;	call	LCD_Transmit_Instruction
+;	return
 	   
 	   
 start:
-           ;call    sensorread		    ;to use heart rate click
-	   ;call    loopsensor
-	   
-           lfsr		 0, myArray			; Load FSR0 with address in RAM    
-           ; put if loop here to change the code depending on the frequency !!
-           movlw         low highword(myTable)  ; address of data in PM
-           movwf         TBLPTRU, A		; load upper bits to TBLPTRU
-           movlw         high(myTable)		; address of data in PM
-           movwf         TBLPTRH, A		; load high byte to TBLPTRH
-           movlw         low(myTable)		; address of data in PM
-           movwf         TBLPTRL, A		; load low byte to TBLPTRL
-           movlw         myTable_l		; bytes to read
-           movwf         counter, A             ; our counter register
- 
-loop:	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
-           movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
-           decfsz          counter, A           ; count down to zero
-           bra		   loop			; keep going until finished
-           movlw	   myTable_l		; output message to UART
-           lfsr		   2, myArray
-           call		   UART_Transmit_Message
-           movlw	   myTable_l-1		; output message to LCD
-						; don't send the final carriage return to LCD
-           lfsr		   2, myArray
-           call		   LCD_Write_Message
-	   goto		   $
- 
-	     
-;loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-;	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-;	decfsz	counter, A		; count down to zero
-;	bra	loop		; keep going until finished
-;		
-;	movlw	myTable_l	; output message to UART
-;	lfsr	2, myArray
-;	call	UART_Transmit_Message
-;
-;	goto	$		; goto current line in code
+    
+        call	   BPM
+	
+	;call print my BPM
+	
+	
+	
+	;if
+	;call the right message
+	movlw	   150	    ;dummy data
+	movwf	   0x06, A	    ; registry
+	movlw	   30	    ;data to compare-> min value : need to readjust
+	CPFSLT	   0x06
+	call	   good_break_fork
+	movlw	   30	    ;data to compare-> min value : need to readjust
+	CPFSGT	   0x06
+	call	   adjustmessage
+	
+	goto	    $   
 
- 
+good_break_fork:
+	movlw	    200
+	CPFSLT	    0x06
+	call	    restmessage
+	movlw	    200
+	CPFSLT	    0x06
+	return
+	
+	call	   goodmessage
+	return
+	
+
+clear:
+	movlw	00000001B
+	call	LCD_Write_Instruction
+	return
+
  
 
 ;measure_loop:

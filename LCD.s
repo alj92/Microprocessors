@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message
+global  LCD_Setup, LCD_Write_Message, LCD_Write_Instruction
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1	; reserve 1 byte for variable LCD_cnt_l
@@ -9,8 +9,8 @@ LCD_cnt_ms:	ds 1	; reserve 1 byte for ms counter
 LCD_tmp:	ds 1	; reserve 1 byte for temporary use
 LCD_counter:	ds 1	; reserve 1 byte for counting through nessage
 
-PSECT	udata_acs_ovr,space=1,ovrld,class=COMRAM
-LCD_hex_tmp:	ds 1    ; reserve 1 byte for variable LCD_hex_tmp
+;PSECT	udata_acs_ovr,space=1,ovrld,class=COMRAM
+;LCD_hex_tmp:	ds 1    ; reserve 1 byte for variable LCD_hex_tmp
 
 	LCD_E	EQU 5	; LCD enable bit
     	LCD_RS	EQU 4	; LCD register select bit
@@ -144,9 +144,7 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	return			; carry reset so return
 
 
-;end
-    
-    
+	
 ;LCD_Write_Hex:			; Writes byte stored in W as hex
 ;	movwf	LCD_hex_tmp, A
 ;	swapf	LCD_hex_tmp, W, A	; high nibble first

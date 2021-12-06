@@ -1,13 +1,14 @@
 #include <xc.inc>
 
-global	  sensor_setup, portcsetup, loop, sensorread
+global	  sensor_setup, portcsetup, loopsensor, sensorread
 
+    
 psect	udata_acs
     
 dataR:   ds	1 ;create one byte to put data from the sensor (BUF register_
 dataT:	ds	1 ; create one byte to put data from the BUF to  SSP1BUF
     
-psect	sensor_code,class=CODE
+psect	sensor_code, class=CODE
 
 sensor_setup: 
     bsf	    TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
@@ -30,14 +31,18 @@ portcsetup:
     
     return
 
-loop:
-    btfss   BF    ;has data been received (transmit conplete?), SSP1STAT, 
-    bra	    loop
-    movf    SSP1BUF, W ; WREG reg = contents of SSP1BUF
-    movwf   dataR ;save in user RAM
-    movf    dataT, W ; W reg = contents of dataT
-    movwf   SSP1BUF ;  nez data to xmit
-    
- sensorread:
+loopsensor:		    ;we got a weird loop tbh
+    btfss   BF		    ;has data been received (transmit conplete?), SSP1STAT, 
+    ;bra	    loopsensor
+    movf    SSP1BUF, W	    ; WREG reg = contents of SSP1BUF
+    movwf   dataR	    ;save in user RAM
+    movf    dataT, W	    ; W reg = contents of dataT
+    movwf   SSP1BUF	    ;  nez data to xmit
+    bra	    loopsensor
+    return
+
+
+sensorread:
     bsf	    GO
-    
+ 
+end

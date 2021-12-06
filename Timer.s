@@ -75,6 +75,6 @@ check_led:
         bcf     TMR0IF      ; clears timer 'overflow flag'
         goto    Timer_15s       ; to restart timer
 
-END
+end
 
 

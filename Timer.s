@@ -18,7 +18,7 @@ initiate:
 	movlw	10100011		; set 500kHz oscillator
 	movwf	OSCCON, A		; oscillator control register
  ;       movlw   00000000        	; 1s Timer - prescaler = 2, 1:2 prescale value
-        movlw   00000110        	; 15s Timer - prescaler = 32, 1:32 prescale value
+        movlw   00000100        	; 15s Timer - prescaler = 32, 1:32 prescale value
         movwf   T0CON, A		; timer control register
 	goto	Timer_15s	
         
@@ -33,17 +33,17 @@ initiate:
 ;1s Timer
 ;Using 500kHz oscillator MF-INTOSC
 ;Prescale = 2
-;Equation to calculate timer count value: Timer = 4 * Tosc * (8/16bits_max_value - TMR0value)*(Prescaler)
-;  1s = 4 * (1/500kHz) * (65536 - TMR0value) * (2)
-;  max_count-timer_count = 65536 - 29104
-;  Count in Hexadecimal = 36432 = 0x8E50
-;  High byte = TMR0H = 0x8E
-;  Low byte = TMR0L = 0x50
+;Equation to calculate timer count value: Timer = 4/Tosc * (16bit - TMR0value)*(Prescaler)
+;  1s = (4/500kHz) * (65536 - TMR0value) * (2)
+;  max_count-timer_count = 65536 - 34286
+;  Count in Hexadecimal = 31250 = 0x7A12
+;  High byte = TMR0H = 0x7A
+;  Low byte = TMR0L = 0x12
 
 ; Timer_1s:
-;        movlw   0x8E                ; load hexadecimal count value 0x0BDC to count 3036
+;        movlw   0x7A               ; load hexadecimal count value 0x0BDC to count 3036
 ;        movwf   TMR0H, A            ; high byte
-;        movlw   0x50
+;        movlw   0x12
 ;        movwf   TMR0L, A               ; low byte
 ;        bsf     TMR0ON       ; gives 1s time
 
@@ -51,16 +51,16 @@ initiate:
 ; Using 500kHz oscillator MF-INTOSC
 ; Prescale = 32
 ;Equation to calculate timer count value:
-;  15s = 4 * (1/500kHz) * (65536 - TMR0value) * (32)
-;  max_count-timer_count = 65536 - 58594
-;  Count in Hexadecimal = 2277 = 0x8E5
-;  High byte = TMR0H = 0x1B
-;  Low byte = TMR0L = 0x1E
+;  15s = (4/500kHz) * (65536 - TMR0value) * (32)
+;  max_count-timer_count = 65536 - 6942
+;  Count in Hexadecimal = 58594 = 0xE4E2
+;  High byte = TMR0H = 0xE4
+;  Low byte = TMR0L = 0xE2
 
  Timer_15s:
-        movlw   0x1B                ; load hexadecimal count value 0x1B1E to count 6943
+        movlw   0xE4                ; load hexadecimal count value 0x1B1E to count 6943
         movwf   TMR0H, A               ; high byte
-        movlw   0x1E                 
+        movlw   0xE2                 
         movwf   TMR0L, A               ; low byte
         bsf     TMR0ON       ; gives 15s time
 	
@@ -71,7 +71,7 @@ check_led:
         btfss   TMR0IF      ; loop to check byte until timer0 overflows - count reached
         goto    check_led
         bcf     TMR0ON       ; turns timer off when finished
-        btg     RD0           ; toggles bit 7 LED - turns on when timer finished
+        btg     RD0           ; bit0 on LED - turns on when timer finished
         bcf     TMR0IF      ; clears timer 'overflow flag'
         goto    Timer_15s       ; to restart timer
 

@@ -40,28 +40,26 @@ start:
         call	   BPM
 	
 	;call print my BPM
-	
-	
-	
+
 	;if
 	;call the right message
-	movlw	   150	    ;dummy data
-	movwf	   0x06, A	    ; registry
-	movlw	   30	    ;data to compare-> min value : need to readjust
-	CPFSLT	   0x06
-	call	   good_break_fork
-	movlw	   30	    ;data to compare-> min value : need to readjust
-	CPFSGT	   0x06
-	call	   adjustmessage
+	movlw	   150		    ;dummy frequency
+	movwf	   0x06, A	    ;registry
+	movlw	   30		    ;minf to compare-> need to readjust
+	CPFSLT	   0x06		    ;skips if frequency smaller than 30
+	call	   good_break_fork  ;goes there if frequency bigger than 30
+	movlw	   30		    
+	CPFSGT	   0x06		    ;skips if frequency bigger than 30
+	call	   adjustmessage    ;should display adjust if frequency smaller than 30
 	
 	goto	    $   
 
 good_break_fork:
-	movlw	    200
-	CPFSLT	    0x06
-	call	    restmessage
-	movlw	    200
-	CPFSLT	    0x06
+	movlw	    200		    ; maxf to compare -> need to take a break
+	CPFSLT	    0x06	    ; skips if frequency smaller than 200
+	call	    restmessage	    ;should display if frequency is bigger than 200
+	movlw	    200		    
+	CPFSLT	    0x06	    ;should skip if value smaller than 200 -> go to call message
 	return
 	
 	call	   goodmessage

@@ -60,7 +60,7 @@ initiate:
  Timer_15s:
         movlw   0x1B                ; load hexadecimal count value 0x1B1E to count 6943
         movwf   TMR0H, A               ; high byte
-        movlw   0x1E                ; 
+        movlw   0x1E                 
         movwf   TMR0L, A               ; low byte
         bsf     TMR0ON       ; gives 15s time
 	

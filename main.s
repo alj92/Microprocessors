@@ -29,11 +29,6 @@ setup:     bcf     CFGS ; point to Flash program memory
 	   goto	   start 
     
 	   ;********* Main Programme *************
-;clear:
-;	movlw	00000001B
-;	call	LCD_Transmit_Instruction
-;	return
-	   
 	   
 start:
     
@@ -41,8 +36,8 @@ start:
 	
 	;call print my BPM
 
-	;if
-	;call the right message
+	;***** if statements to choose the correct message (using dummy frequency)**********
+	
 	movlw	   150		    ;dummy frequency
 	movwf	   0x06, A	    ;registry
 	movlw	   30		    ;minf to compare-> need to readjust

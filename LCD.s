@@ -49,26 +49,17 @@ LCD_Setup:
 	call	LCD_delay_x4us
 	return
 
-LCD_Write_Hex:			; Writes byte stored in W as hex
-	movwf	LCD_hex_tmp, A
-	swapf	LCD_hex_tmp, W, A	; high nibble first
-	call	LCD_Hex_Nib
-	movf	LCD_hex_tmp, W, A	; then low nibble
-	
-LCD_Hex_Nib:			; writes low nibble as hex character
-	andlw	0x0F
-	movwf	LCD_tmp, A
-	movlw	0x0A
-	cpfslt	LCD_tmp, A
-	addlw	0x07		; number is greater than 9 
-	addlw	0x26
-	addwf	LCD_tmp, W, A
-	call	LCD_Send_Byte_D ; write out ascii
-	return	
+LCD_Write_Instruction: ; Message stored at W
+	call	LCD_Send_Byte_I
+	movlw	2
+	call	LCD_delay_ms
+	return
 	
 LCD_Write_Message:	    ; Message stored at FSR2, length stored in W
 	movwf   LCD_counter, A
 
+	
+	
 LCD_Loop_message:
 	movf    POSTINC2, W, A
 	call    LCD_Send_Byte_D
@@ -157,3 +148,19 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 end
 
 
+;LCD_Write_Hex:			; Writes byte stored in W as hex
+;	movwf	LCD_hex_tmp, A
+;	swapf	LCD_hex_tmp, W, A	; high nibble first
+;	call	LCD_Hex_Nib
+;	movf	LCD_hex_tmp, W, A	; then low nibble
+	
+;LCD_Hex_Nib:			; writes low nibble as hex character
+;	andlw	0x0F
+;	movwf	LCD_tmp, A
+;	movlw	0x0A
+;	cpfslt	LCD_tmp, A
+;	addlw	0x07		; number is greater than 9 
+;	addlw	0x26
+;	addwf	LCD_tmp, W, A
+;	call	LCD_Send_Byte_D ; write out ascii
+;	return	

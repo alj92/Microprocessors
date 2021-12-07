@@ -17,6 +17,7 @@ counter:    ds 1	    ;reserve one byte of memory
 psect	timer_code,class=CODE
 
 initiate:
+	clrf	LATH, A
 	bsf	TRISD, PORTD_RD0_POSN, A  ; pin RD0==AN0 input
 	movlb   15    ;move literal to low nibble in BSR (Bit Scan Reverse)
         bsf	ANSEL0		; setup PORTB
@@ -28,16 +29,52 @@ initiate:
  ;       movlw   00000100        	; 15s Timer - prescaler = 32, 1:32 prescale value
         movwf   T0CON, A		; timer control register
 	
-	movlw	0x0
-	movwf	TRISH, A			; set PORTH as input
+	movlw	0xFF
+	movwf	TRISH, A		; set PORTH as input
 	clrf	PORTH,A			;clear data
 	goto	start_button
 	
 start_button:
-	btfsc	RH0   ;check bit0 on PORT H RH0 - set=button pressed / clear=wait until pressed
-	goto	Timer_1s
+	btfsc	RH0			;check bit0 on PORT H RH0 - set=button pressed / clear=wait until pressed
+	call	Timer_1s
 	goto	start_button
         
+
+Timer_1s:
+        movlw   0x7A               ; load hexadecimal count value 0x0BDC to count 3036
+        movwf   TMR0H, A            ; high byte
+        movlw   0x12
+        movwf   TMR0L, A               ; low byte
+        bsf     TMR0ON       ; gives 1s time
+	
+
+; Timer_15s:
+;        movlw   0xE4                ; load hexadecimal count value 0x1B1E to count 6943
+;        movwf   TMR0H, A               ; high byte
+;        movlw   0xE2                 
+;        movwf   TMR0L, A               ; low byte
+;        bsf     TMR0ON       ; gives 15s time	
+	
+
+; Checking if timer is done - RB0 LED turns on
+
+check_led:
+        btfss   TMR0IF      ; loop to check byte until timer0 overflows - count reached
+        goto    check_led
+        bcf     TMR0ON       ; turns timer off when finished
+        btg     RD0           ; bit0 on LED - turns on when timer finished
+        bcf     TMR0IF      ; clears timer 'overflow flag'
+        goto    Timer_1s       ; to restart timer
+	
+
+;check_ADC:
+;    btfsc   ADCON0,GO   ;check if conversion finished
+;    bra	    check_ADC	;if not finished - return to check_ADC
+;    movf ADRESH,0,0	;if finished - use value
+
+	
+	
+	
 ; Setting up MF-INTOSC 500kHz oscillator - check default?
 ; Using OSCCON: OSCILLATOR CONTROL REGISTER
 ; Setting bit 6-4
@@ -56,12 +93,7 @@ start_button:
 ;  High byte = TMR0H = 0x7A
 ;  Low byte = TMR0L = 0x12
 
- Timer_1s:
-        movlw   0x7A               ; load hexadecimal count value 0x0BDC to count 3036
-        movwf   TMR0H, A            ; high byte
-        movlw   0x12
-        movwf   TMR0L, A               ; low byte
-        bsf     TMR0ON       ; gives 1s time
+ 
 
 ; 15s Timer
 ; Using 500kHz oscillator MF-INTOSC
@@ -73,28 +105,6 @@ start_button:
 ;  High byte = TMR0H = 0xE4
 ;  Low byte = TMR0L = 0xE2
 
-; Timer_15s:
-;        movlw   0xE4                ; load hexadecimal count value 0x1B1E to count 6943
-;        movwf   TMR0H, A               ; high byte
-;        movlw   0xE2                 
-;        movwf   TMR0L, A               ; low byte
-;        bsf     TMR0ON       ; gives 15s time
-	
 
-; Checking if timer is done - RB0 LED turns on
-
-check_led:
-        btfss   TMR0IF      ; loop to check byte until timer0 overflows - count reached
-        goto    check_led
-        bcf     TMR0ON       ; turns timer off when finished
-        btg     RD0           ; bit0 on LED - turns on when timer finished
-        bcf     TMR0IF      ; clears timer 'overflow flag'
-        goto    Timer_1s       ; to restart timer
-	
-
-;check_ADC:
-;    btfsc   ADCON0,GO   ;check if conversion finished
-;    bra	    check_ADC	;if not finished - return to check_ADC
-;    movf ADRESH,0,0	;if finished - use value
 
 end

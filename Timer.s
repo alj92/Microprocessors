@@ -28,8 +28,8 @@ initiate:
  ;       movlw   00000100        	; 15s Timer - prescaler = 32, 1:32 prescale value
         movwf   T0CON, A		; timer control register
 	
-	movlw	0x0f
-	movwf	TRISH A			; set PORTH as input
+	movlw	0x0
+	movwf	TRISH, A			; set PORTH as input
 	clrf	PORTH,A			;clear data
 	goto	start_button
 	

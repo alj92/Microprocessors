@@ -27,6 +27,7 @@ sensor_setup:
     return
     
 portcsetup:
+    clrf    TRISC
     clrf    PORTC   ;initialize PORTC by clearing output data latches
     clrf    LATC    ;alternate method to clear output data latches
 ;    movlw   0CFh    ;value used to initialize data direction

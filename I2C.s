@@ -9,9 +9,9 @@ psect	udata_acs
 IC_DATA:   ds	1   ;create one byte to put data from the sensor (BUF register_
 IC_ADDRESS:   ds	1   
 dataT:	 ds	1   ; create one byte to put data from the BUF to  SSP1BUF
-LCD_cnt_ms: ds 1    ; reserve 1 byte for ms counter   
-LCD_cnt_l: ds 1	    ; reserve 1 byte for variable LCD_cnt_l
-LCD_cnt_h: ds 1	    ; reserve 1 byte for variable LCD_cnt_h
+LCD_ms: ds 1    ; reserve 1 byte for ms counter   
+LCD_l: ds 1	    ; reserve 1 byte for variable LCD_cnt_l
+LCD_h: ds 1	    ; reserve 1 byte for variable LCD_cnt_h
 
 psect	I2C_code, class=CODE
 
@@ -32,6 +32,10 @@ IC_INIT:
     
     bsf	    SCL1		    ;In Master mode, the SCLx, in TRISC   
     bsf	    SDA1		    ;and SDAx lines are set as inputs
+    
+    clrf    SSP1STAT
+    bcf	    SSP1STAT, 7
+    bcf	    SSP1STAT, 6 
     
     movlw   0x18		    ;Fosc = 400kHz ; SSP1ADD = (Fosc / (4*Fclock)) - 1 
     movwf   SSP1ADD
@@ -153,23 +157,23 @@ IC_READ:
     return
 									
 TEN_delay_ms:    ; delay given in ms in W
-    movwf   LCD_cnt_ms, A
+    movwf   LCD_ms, A
 
-lcdlp2: 
+lcdloop2: 
     movlw   250    ; 1 ms delay
-    call    LCD_delay_x4us 
-    decfsz  LCD_cnt_ms, A
-    bra	    lcdlp2
+    call    LCDdelay_x4us 
+    decfsz  LCD_ms, A
+    bra	    lcdloop2
     return
 
     
-LCD_delay_x4us:    ; delay given in chunks of 4 microsecond in W
-	movwf LCD_cnt_l, A ; now need to multiply by 16
-	swapf   LCD_cnt_l, F, A ; swap nibbles
+LCDdelay_x4us:    ; delay given in chunks of 4 microsecond in W
+	movwf LCD_l, A ; now need to multiply by 16
+	swapf   LCD_l, F, A ; swap nibbles
 	movlw 0x0f    
-	andwf LCD_cnt_l, W, A ; move low nibble to W
-	movwf LCD_cnt_h, A ; then to LCD_cnt_h
+	andwf LCD_l, W, A ; move low nibble to W
+	movwf LCD_h, A ; then to LCD_cnt_h
 	movlw 0xf0    
-	andwf LCD_cnt_l, F, A ; keep high nibble in LCD_cnt_l
+	andwf LCD_l, F, A ; keep high nibble in LCD_cnt_l
 	call TEN_delay_ms
 	return

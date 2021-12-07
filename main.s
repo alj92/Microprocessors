@@ -22,17 +22,17 @@ rst:
 setup:     bcf     CFGS ; point to Flash program memory 
            bsf     EEPGD         ; access Flash program memory
 ;	   call	   initiate
-;           call    LCD_Setup	    ; setup LCD: PORTB
-	   call	   clear
+	   ;call	   clear
+	   call    LCD_Setup	    ; setup LCD: PORTB
 ;          call    ADC_Setup	    ; setup ADC: PORTE
-           call    portcsetup	    ; clear everything PORTC
+          ; call    portcsetup	    ; clear everything PORTC
            ;call    sensor_setup	    ; setup heart rate click: PORTC
 	   ;call	   sensorread
 ;	   call	   IC_INIT
 ;	   call	   IC_write
 ;	   call	   IC_READ
 
-	   return 
+	   goto	    start 
 	   
     
 	   ;********* Main Programme *************

@@ -9,7 +9,9 @@ extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subro
 extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
 extrn BPM, goodmessage, restmessage, adjustmessage	    ; external function to write the BPM= and the message on the LCD
-
+extrn I2C_INIT, I2C_write, I2C_READ
+ 
+ 
 psect code, abs   
 rst:     
 	org 0x0
@@ -19,13 +21,13 @@ rst:
 	  
 setup:     bcf     CFGS ; point to Flash program memory 
            bsf     EEPGD         ; access Flash program memory
-;	   call	   initiate
+	   call	   initiate
            call    LCD_Setup	    ; setup LCD: PORTB
-	   
-;          call    ADC_Setup	    ; setup ADC: PORTE
-;          call    portcsetup	    ; clear everything PORTC
-;          call    sensor_setup	    ; setup heart rate click: PORTC
 	   call	   clear
+;          call    ADC_Setup	    ; setup ADC: PORTE
+           call    portcsetup	    ; clear everything PORTC
+           call    sensor_setup	    ; setup heart rate click: PORTC
+	   call	   sensorread
 	   goto	   start 
     
 	   ;********* Main Programme *************

@@ -10,12 +10,15 @@ dataT:	ds	1 ; create one byte to put data from the BUF to  SSP1BUF
     
 psect	sensor_code, class=CODE
 
+
+    
 sensor_setup: 
-    bsf	    TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
-    bsf	    TRISC, PORTC_RC4_POSN, A ;  pin RC4=serial data SDAx
+    bcf	    TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
+    bcf	    TRISC, PORTC_RC4_POSN, A ;  pin RC4=serial data SDAx
+    movlw   0x18
+    movwf   SSP1ADD
     bsf	    SEN ;  SEN = 1, setting the SEN in the SSPxCON2, start condition, SSP2CON2,
-    movlw   0b1010111 ; slave address
-    movwf   SSP1BUF ; loading slave address in register
+    
     ;clrf    SSP1IF  ; clear file in PIR register??
     btfss   SSP1CON2, 0x06 ; check the ACKSTAT bit in the SSPxCON2 register
     movwf   SSP1BUF, A	;load the register address in the SSPxBUF register (maybe)

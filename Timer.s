@@ -5,6 +5,13 @@ global	  initiate
     
 psect	udata_acs
     
+#include <xc.inc>
+    
+    
+global	  initiate
+    
+psect	udata_acs
+    
 counter:    ds 1	    ;reserve one byte of memory
     
 psect	timer_code,class=CODE
@@ -20,6 +27,13 @@ initiate:
  ;       movlw   00000000        	; 1s Timer - prescaler = 2, 1:2 prescale value
         movlw   00000100        	; 15s Timer - prescaler = 32, 1:32 prescale value
         movwf   T0CON, A		; timer control register
+	
+	MOVWF	TRISH			; set PORTH as input
+	CLRF	PORTH			;clear data
+	goto	start_button
+	
+start_button:
+	btfsc	RH0   ;check bit0 on PORT H RH0 - set=button pressed / clear=wait until pressed
 	goto	Timer_15s	
         
 ; Setting up MF-INTOSC 500kHz oscillator - check default?
@@ -74,7 +88,11 @@ check_led:
         btg     RD0           ; bit0 on LED - turns on when timer finished
         bcf     TMR0IF      ; clears timer 'overflow flag'
         goto    Timer_15s       ; to restart timer
+	
+
+check_ADC:
+    btfsc   ADCON0,GO   ;check if conversion finished
+    bra	    check_ADC	;if not finished - return to check_ADC
+    movf ADRESH,0,0	;if finished - use value
 
 end
-
-

@@ -35,8 +35,8 @@ initiate:
 	goto	start_button
 	
 start_button:
-	btfsc	RH0			;check bit0 on PORT H RH0 - set=button pressed / clear=wait until pressed
-	call	Timer_1s
+	btfss	RH0			;check bit0 on PORT H RH0 - set=button pressed / clear=wait until pressed
+	goto	Timer_1s
 	goto	start_button
         
 

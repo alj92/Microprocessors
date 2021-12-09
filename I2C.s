@@ -39,7 +39,7 @@ IC_INIT:
     bcf	    SSP1STAT, 3
     bcf	    SSP1STAT, 4
     
-    movlw   0x18		    ;Fosc = 400kHz ; SSP1ADD = (Fosc / (4*Fclock)) - 1  value given in the data sheet Heart Rate Click
+    movlw   0x27		    ;Fosc = 400kHz ; SSP1ADD = (Fosc / (4*(Fclock + 1))  value given in the data sheet Heart Rate Click
     movwf   SSP1ADD
     
     
@@ -55,7 +55,7 @@ IC_write:
     bcf	    SSP1IF		    ; clear SSPxIF,  in PIR1
     
     
-    movlw   0b1010111		    ; slave address [they put B'10100000] Send write control byte to EEPROM
+    movlw   0b10101110		    ; slave address [they put B'10100000] Send write control byte to EEPROM
     movwf   SSP1BUF		    ; loading slave address in register
     btfsc   ACKSTAT		    ; check the ACKSTAT bit in the SSPxCON2 register -> skip if clear,   in SSP1CON2
     bra	    $-2
@@ -64,7 +64,7 @@ IC_write:
     bcf	    SSP1IF		    ; SSPxIF is cleared, in PIR1
     
     
-    movff   0b1010111, SSP1BUF	    ; slave address 
+    movff   0b10101110, SSP1BUF	    ; slave address 
     btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    in SSP1CON2
     bra	    $-2			    ;the slave device and writes its value into the
 				    ;ACKSTAT bit of the SSPxCON2 register.

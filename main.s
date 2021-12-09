@@ -4,7 +4,7 @@
 
  
 ;extrn sensor_setup, portcsetup, loopsensor, sensorread	    ; external heart rate click
-;extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
+extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
 extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subroutines
 extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
@@ -21,22 +21,30 @@ rst:
 	  
 setup:     bcf     CFGS		    ; point to Flash program memory 
            bsf     EEPGD	    ; access Flash program memory
-	   call	   initiate
-	   ;call	   clear
-;	   call    LCD_Setup	    ; setup LCD: PORTB
-;          call    ADC_Setup	    ; setup ADC: PORTE
+;	   call	   initiate
+	   call	   clear
+	   call    LCD_Setup	    ; setup LCD: PORTB
+           call    ADC_Setup	    ; setup ADC: PORTE
           ; call    portcsetup	    ; clear everything PORTC
-           ;call    sensor_setup	    ; setup heart rate click: PORTC
-	   ;call    sensorread
-;	   call	   IC_INIT
-;	   call	   IC_write
-;	   call	   IC_READ
+;           call    sensor_setup	    ; setup heart rate click: PORTC
+;	   call    sensorread
+	   call	   IC_INIT
+	   call	   IC_write
+	   call	   IC_READ
 
 
-	   goto	    start 
+	   goto	    measure_loop 
 	   
     
 	   ;********* Main Programme *************
+	   
+measure_loop:
+	call	ADC_Read
+	movf	ADRESH, W, A
+	call	LCD_Write_Message
+	movf	ADRESL, W, A
+	call	LCD_Write_Message
+	goto	measure_loop		; goto current line in code
 	   
 start:
     

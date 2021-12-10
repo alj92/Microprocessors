@@ -13,6 +13,9 @@ LCD_ms: ds 1    ; reserve 1 byte for ms counter
 LCD_l: ds 1	    ; reserve 1 byte for variable LCD_cnt_l
 LCD_h: ds 1	    ; reserve 1 byte for variable LCD_cnt_h
 
+    
+    
+    
 psect	I2C_code, class=CODE
 
 
@@ -39,7 +42,7 @@ IC_INIT:
     bcf	    SSP1STAT, 3
     bcf	    SSP1STAT, 4
     
-    movlw   0x27		    ;Fosc = 400kHz ; SSP1ADD = (Fosc / (4*(Fclock + 1))  value given in the data sheet Heart Rate Click
+    movlw   0x09		    ;Fosc = 16MHz ; Fclock = 400kHz use 100 ; SSP1ADD = ((Fosc / Fclock) / 4) -1;   value given in the data sheet Heart Rate Click
     movwf   SSP1ADD
     
     
@@ -55,7 +58,8 @@ IC_write:
     bcf	    SSP1IF		    ; clear SSPxIF,  in PIR1
     
     
-    movlw   0b10101110		    ; slave address [they put B'10100000] Send write control byte to EEPROM
+    
+    movlw   0xAE		    ; {{slave address [they put B'10100000]}} Send write control byte to EEPROM
     movwf   SSP1BUF		    ; loading slave address in register
     btfsc   ACKSTAT		    ; check the ACKSTAT bit in the SSPxCON2 register -> skip if clear,   in SSP1CON2
     bra	    $-2
@@ -64,7 +68,12 @@ IC_write:
     bcf	    SSP1IF		    ; SSPxIF is cleared, in PIR1
     
     
-    movff   0b10101110, SSP1BUF	    ; slave address 
+    
+;    clrf    FIFO_WR_PTR
+;    clrf    OVF_COUNTER
+;    clrf    FIFO_RD_PTR
+    
+    movff   0x02, SSP1BUF	    ; slave address write mode		Write Pointer from HRC data sheet
     btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    in SSP1CON2
     bra	    $-2			    ;the slave device and writes its value into the
 				    ;ACKSTAT bit of the SSPxCON2 register.
@@ -72,8 +81,11 @@ IC_write:
     bra	    $-2			    ;of the ninth clock cycle by setting the SSPxIF bit.
     bcf	    SSP1IF		    ;SSPxIF is cleared    , in PIR1
 
+    movlw   0xAF		    ; Test: read mode
+    movwf   SSP1BUF		    ; loading slave address in register
     
-    movff   0xAE, SSP1BUF	    ;The user loads the SSPxBUF with eight bits of data. ICData
+    
+    movff   0x02, SSP1BUF	    ;The user loads the SSPxBUF with eight bits of data. ICData
     btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    in SSP1CON2
     bra	    $-2			    ;the slave device and writes its value into the
 				    ;ACKSTAT bit of the SSPxCON2 register.			    
@@ -82,15 +94,15 @@ IC_write:
     bcf	    SSP1IF		    ;SSPxIF is cleared    , in PIR1
 
     
-    bsf	   PEN			    ;The user generates a Stop or Restart condition     SSP1CON2, 
+    bsf	   RSEN			    ;The user generates a Stop or Restart condition     SSP1CON2, 
 				    ;by setting the PEN or RSEN bits of the SSPxCON2 register.		    
     btfss   SSP1IF		    ;Interrupt is generated once the Stop/Restart condition is complete.   , in PIR1
     bra	    $-2
     bcf	    SSP1IF		    ;SSPxIF is cleared by software.   , in PIR1
     
     
-    call    TEN_delay_ms
-    call    TEN_delay_ms
+;    call    TEN_delay_ms
+;    call    TEN_delay_ms
     
     return
 
@@ -102,7 +114,7 @@ IC_READ:
 
    
     
-    movlw   10100000		    ;Send the write control byte to the EEPROM
+    movlw   0xAE		    ;Send the write control byte to the EEPROM
     movwf   SSP1BUF
     btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    SSP1CON2, 
     bra	    $-2			    ;the slave device and writes its value into the
@@ -112,7 +124,7 @@ IC_READ:
     bcf	    SSP1IF		    ;SSPxIF is cleared by software.    PIR1, 
     
 
-    movff   0xAF, SSP1BUF	    ;The user loads the SSPxBUF with the slave address to transmit    ICAddress
+    movff   0x05, SSP1BUF	    ;The user loads the SSPxBUF with the slave address to transmit    ICAddress
     btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    SSP1CON2, 
     bra	    $-2			    ;the slave device and writes its value into the
 				    ;ACKSTAT bit of the SSPxCON2 register.
@@ -130,7 +142,7 @@ IC_READ:
      
     
     
-    movlw   10100001		    ;Send the read control byte to the EEPROM
+    movlw   0xAF		    ;Send the read control byte to the EEPROM
     MOVWF   SSP1BUF
     BTFSC   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from      SSP1CON2, 
     bra	    $-2			    ;the slave device and writes its value into the
@@ -142,12 +154,12 @@ IC_READ:
     
 
     
-    bsf	    RCEN		    ;User sets the RCEN bit of the SSPxCON2 register    SSP1CON2, 
+    bsf	    RCEN		    ;User sets the RCEN bit of the SSPxCON2 register    SSP1CON2,   Receive enable bit
 				    ;and the Master clocks in a byte from the slave.	    
     btfss   SSP1IF		    ;After the 8th falling edge of SCLx, SSPxIF and BF are set.   PIR1, 
     bra	    $-2
     bcf	    SSP1IF		    ;Master clears SSPxIF    PIR1, 
-    movff   SSP1BUF, 0xAE	    ;and reads the received byte from SSPxUF    SSP1BUF, 
+    movff   SSP1BUF, 0x05	    ;and reads the received byte from SSPxUF    SSP1BUF, 
 
     
     

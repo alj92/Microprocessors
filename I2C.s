@@ -21,8 +21,8 @@ psect	I2C_code, class=CODE
 
 
 IC_INIT:
-    bsf	    TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
-    bsf	    TRISC, PORTC_RC4_POSN, A ;  pin RC4=serial data SDAx
+;    bsf	    TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
+;    bsf	    TRISC, PORTC_RC4_POSN, A ;  pin RC4=serial data SDAx
     movlb   15			    ;access bank 15 of the SFR
  ;   clrf    ANSEL0		    ;Disable Analog functionality of PORTC
     
@@ -109,7 +109,7 @@ IC_write:
     bcf	    SSP1IF		    ;SSPxIF is cleared    , in PIR1
 
     
-    bsf	   PEN			    ;The user generates a Stop or Restart condition     SSP1CON2, 
+    bsf	   RSEN			    ;The user generates a Stop or Restart condition     SSP1CON2, 
 				    ;by setting the PEN or RSEN bits of the SSPxCON2 register.		    
     btfss   SSP1IF		    ;Interrupt is generated once the Stop/Restart condition is complete.   , in PIR1
     bra	    $-2
@@ -179,7 +179,7 @@ IC_READ:
     btfss   SSP1IF		    ;After the 8th falling edge of SCLx, SSPxIF and BF are set.   PIR1, 
     bra	    $-2
     bcf	    SSP1IF		    ;Master clears SSPxIF    PIR1, 
-    movff   SSP1BUF, 0x05	    ;and reads the received byte from SSPxUF    SSP1BUF, 
+    movff   SSP1BUF, Datareg	    ;and reads the received byte from SSPxUF    SSP1BUF, 
 
     
     

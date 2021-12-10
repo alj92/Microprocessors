@@ -1,5 +1,13 @@
  #include <xc.inc>
 
+ 
+ psect	udata_acs
+
+Addreg: ds 1
+Datareg: ds 1
+ 
+ 
+ 
  psect code, abs
 
  
@@ -29,24 +37,25 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   call	   IC_INIT
 	   
-	   movlw    0x06
-	   movwf    Addreg
-	   movlw    00000010
-	   movwf    Datareg
-	   call	    IC_write
-
-	   movlw    0x02
-	   movwf    Addreg
+;	   movlw    0x06
+;	   movwf    Addreg
+;	   movlw    00000010
+;	   movwf    Datareg
+;	   call	    IC_write
+;
 	   movlw    0x05
+	   movwf    Addreg
+	   movlw    0x04
 	   movwf    Datareg
 	   call	    IC_write
 	   
 	   movlw    0x05
 	   movwf    Addreg
+	   call	    IC_write
 	   call	    IC_READ
 
 
-	   goto	    measure_loop 
+	   goto	    start
 	   
     
 	   ;********* Main Programme *************

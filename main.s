@@ -37,23 +37,36 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   call	   IC_INIT
 	   
-;	   movlw    0x06
-;	   movwf    Addreg
-;	   movlw    00000010
-;	   movwf    Datareg
-;	   call	    IC_write
-;
-	   movlw    0x05
+	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
 	   movwf    Addreg
-	   movlw    0x04
+	   movlw    0x03  ;SPO2
 	   movwf    Datareg
 	   call	    IC_write
 	   
-	   movlw    0x05
+	   movlw    0x02	;FIFO write pointer register address => set the location where the HRC writes the next sample
+	   movwf    Addreg
+	   movlw    0x04	;3:0 data bytes of FIFO_WR_PTR
+	   movwf    Datareg
+	   call	    IC_write
+
+	   movlw    0x05	;FIFO data register adresss => 16 samples (4bytes)
+	   movwf    Addreg
+	   movlw    0x08	;7:0 data bytes of FIFO_DATA
+	   movwf    Datareg
+	   call	    IC_write
+	   
+	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg
 	   call	    IC_write
 	   call	    IC_READ
+	   
+	   movlw    0x04	;FIFO read pointer register adresss
+	   movwf    Addreg
+	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
+	   movwf    Datareg
+	   call	    IC_write
 
+	   call	    IC_READ
 
 	   goto	    start
 	   

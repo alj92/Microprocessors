@@ -1,14 +1,11 @@
  #include <xc.inc>
 
- 
- psect	udata_acs
-
-Addreg: ds 1
-Datareg: ds 1
+ global	datain
+psect	udata_acs
+	datain: ds 4
  
  
- 
- psect code, abs
+psect code, abs
 
  
 ;extrn sensor_setup, portcsetup, loopsensor, sensorread	    ; external heart rate click
@@ -17,7 +14,7 @@ extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subro
 extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
 extrn BPM, goodmessage, restmessage, adjustmessage	    ; external function to write the BPM= and the message on the LCD
-extrn IC_INIT, IC_write, IC_READ
+extrn IC_INIT, IC_write, IC_READ, Addreg, Datareg
  
  
 psect code, abs   
@@ -37,17 +34,17 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   call	   IC_INIT
 	   
-	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
-	   movwf    Addreg
-	   movlw    0x03  ;SPO2
-	   movwf    Datareg
-	   call	    IC_write
+;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
+;	   movwf    Addreg
+;	   movlw    0x03	;SPO2
+;	   movwf    Datareg
+;	   call	    IC_write
 	   
-	   movlw    0x02	;FIFO write pointer register address => set the location where the HRC writes the next sample
-	   movwf    Addreg
-	   movlw    0x04	;3:0 data bytes of FIFO_WR_PTR
-	   movwf    Datareg
-	   call	    IC_write
+;	   movlw    0x02	;FIFO write pointer register address => set the location where the HRC writes the next sample
+;	   movwf    Addreg
+;	   movlw    0x04	;3:0 data bytes of FIFO_WR_PTR
+;	   movwf    Datareg
+;	   call	    IC_write
 
 	   movlw    0x05	;FIFO data register adresss => 16 samples (4bytes)
 	   movwf    Addreg
@@ -57,29 +54,37 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg
-	   call	    IC_write
 	   call	    IC_READ
-	   
-	   movlw    0x04	;FIFO read pointer register adresss
-	   movwf    Addreg
-	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
-	   movwf    Datareg
-	   call	    IC_write
+	   movff    Datareg, datain
+;	   call	    IC_READ
+;	   movff    Datareg, datain+1
+;	   call	    IC_READ
+;	   movff    Datareg, datain+1
+;	   call	    IC_READ
+;	   movff    Datareg, datain+1
 
-	   call	    IC_READ
+	   
+;	    
+;	   movlw    0x04	;FIFO read pointer register adresss
+;	   movwf    Addreg
+;	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
+;	   movwf    Datareg
+	  
+
+
 
 	   goto	    start
 	   
     
 	   ;********* Main Programme *************
 	   
-measure_loop:
-	call	ADC_Read
-	movf	ADRESH, W, A
-	call	LCD_Write_Message
-	movf	ADRESL, W, A
-	call	LCD_Write_Message
-	goto	measure_loop		; goto current line in code
+;measure_loop:
+;	call	ADC_Read
+;	movf	ADRESH, W, A
+;	call	LCD_Write_Message
+;	movf	ADRESL, W, A
+;	call	LCD_Write_Message
+;	goto	start		; goto current line in code
 	   
 start:
     

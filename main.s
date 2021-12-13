@@ -34,11 +34,38 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   call	   IC_INIT
 	   
+	   
+	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
+	   movwf    Addreg,A
+	   movlw    0x43	;configure mode  SPO2
+	   movwf    Datareg,A
+	   call	    IC_write
 ;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
-;	   movwf    Addreg
-;	   movlw    0x03	;SPO2
-;	   movwf    Datareg
-;	   call	    IC_write
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+	
+	   
+	   movlw    0x07	;set mode register address =>define which mode on the heart rate click we are using
+	   movwf    Addreg,A
+	   movlw    0x5F	;configure the SPO2
+	   movwf    Datareg,A
+	   call	    IC_write
+;	   movlw    0x07	;set mode register address =>define which mode on the heart rate click we are using
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+	
+	   movlw    0x09	;set mode register address =>define which mode on the heart rate click we are using
+	   movwf    Addreg,A
+	   movlw    0x88	;configure the LED SPO2
+	   movwf    Datareg,A
+	   call	    IC_write
+;	   movlw    0x09	;set mode register address =>define which mode on the heart rate click we are using
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+	   
+	   
+;	   goto checkread
+	
 	   
 ;	   movlw    0x02	;FIFO write pointer register address => set the location where the HRC writes the next sample
 ;	   movwf    Addreg
@@ -46,16 +73,17 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   movwf    Datareg
 ;	   call	    IC_write
 
-	   movlw    0x05	;FIFO data register adresss => 16 samples (4bytes)
-	   movwf    Addreg
-	   movlw    0x08	;7:0 data bytes of FIFO_DATA
-	   movwf    Datareg
-	   call	    IC_write
+;	   movlw    0x05	;FIFO data register adresss => 16 samples (4bytes)
+;	   movwf    Addreg
+;	   movlw    0x08	;7:0 data bytes of FIFO_DATA
+;	   movwf    Datareg
+;	   call	    IC_write
 	   
-	   movlw    0x05	;FIFO data register adresss
-	   movwf    Addreg
-	   call	    IC_READ
-	   movff    Datareg, datain
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain
+	   
 ;	   call	    IC_READ
 ;	   movff    Datareg, datain+1
 ;	   call	    IC_READ
@@ -123,6 +151,11 @@ clear:
 	return
 
  
+checkread:  
+	
+	
+	
+	
 
 ;measure_loop:
 

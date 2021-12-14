@@ -1,12 +1,12 @@
  #include <xc.inc>
 
- global	datain
+ global	datain1, datain2
  
 psect	udata_acs
-    datain:	ds	4
-    lineRD:	ds	1
-    limloop:	ds	1
- 
+    datain1:	    ds	    4
+    datain2:	    ds	    4
+    Interruptbit:   ds	    1
+    
  
 psect code, abs
 
@@ -18,7 +18,7 @@ extrn ADC_Setup, ADC_Read				    ; external ADC subroutines
 extrn initiate						    ; external timer subroutine
 extrn BPM, goodmessage, restmessage, adjustmessage	    ; external function to write the BPM= and the message on the LCD
 extrn IC_INIT, IC_write, IC_READ, Addreg, Datareg
- 
+
  
 psect code, abs   
 rst:     
@@ -32,12 +32,12 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   call	   initiate
 	   
 	   call	   clear
-	   call    LCD_Setup	    ; setup LCD: PORTB
-           call    ADC_Setup	    ; setup ADC: PORTE
-	   
+;	   call    LCD_Setup	    ; setup LCD: PORTB
+;	   call	   UART_Setup
+
 	   call	   IC_INIT
-	   
-	   
+
+;;;;;;;;;;;;;;;;; Configure the Heart rate click;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
 	   movwf    Addreg,A
 	   movlw    0x02	;configure mode  HRC
@@ -46,8 +46,7 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
 ;;	   movwf    Addreg,A
 ;;	   call	    IC_READ
-;	
-;	   
+	   
 	   movlw    0x07	;reg SPO2 configuration
 	   movwf    Addreg,A
 	   movlw    0x00	;configure the SPO2 so we want everything to be 0
@@ -73,54 +72,88 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   goto checkread
 	
 	   
-;	   movlw    0x02	;FIFO write pointer register address => set the location where the HRC writes the next sample
-;	   movwf    Addreg
-;	   movlw    0x04	;3:0 data bytes of FIFO_WR_PTR
-;	   movwf    Datareg
-;	   call	    IC_write
-
-;	   movlw    0x05	;FIFO data register adresss => 16 samples (4bytes)
-;	   movwf    Addreg
-;	   movlw    0x08	;7:0 data bytes of FIFO_DATA
-;	   movwf    Datareg
-;	   call	    IC_write
-	 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Set the pointers to 0x00;;;;;;;;;;;;;;;;;;;;;;
 	   
-	   movlw    0x00
-	   movwf    lineRD, A
-	   
-	   movlw    15
-	   movwf    limloop, A
-	   
-	   
-;loop:
-	   movlw    0x04	;reg FIFO RD PTR [3,0]
+	   movlw    0x02	;FIFO write pointer
 	   movwf    Addreg,A
-	   movlw    0x02	;configure the SPO2 so we want everything to be 0
+	   movlw    0x00	;corresponds to 27.1mA + only for IR
 	   movwf    Datareg,A
 	   call	    IC_write
 	   
+	   movlw    0x03	;Over flow counter
+	   movwf    Addreg,A
+	   movlw    0x00	;corresponds to 27.1mA + only for IR
+	   movwf    Datareg,A
+	   call	    IC_write
+	   
+	   movlw    0x04	;FIFO read pointer
+	   movwf    Addreg,A
+	   movlw    0x00	;corresponds to 27.1mA + only for IR
+	   movwf    Datareg,A
+	   call	    IC_write
+
+	  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Read the data ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	   
+
+;	   movlw    0x00	;Interrupt status
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, Interruptbit
+;
+;	   movlw    0xA1
+;	   CPFSEQ   Interruptbit, A
+;	   goto	    $-8
+	   
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain
+	   movff    Datareg, datain1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain+1
+	   movff    Datareg, datain1+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain+1
+	   movff    Datareg, datain1+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain+1
-;	    
+	   movff    Datareg, datain1+1
+	   
+	   
+	   movlw    0x04	;FIFO read pointer
+	   movwf    Addreg,A
+	   movlw    0x01	;corresponds to 27.1mA + only for IR
+	   movwf    Datareg,A
+	   call	    IC_write
+
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain2+1
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain2+1
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain2+1
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain2+1
+	   
+	   
 ;	   movlw    0x04	;FIFO read pointer register adresss
 ;	   movwf    Addreg
 ;	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
@@ -131,8 +164,8 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   
 ;	   return
 
-
-	   goto	    start
+	 
+	  ; goto	    $
 	   
     
 	   ;********* Main Programme *************
@@ -145,6 +178,10 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	call	LCD_Write_Message
 ;	goto	start		; goto current line in code
 	   
+	
+	; ******* Main programme ****************************************
+
+	    
 start:
     
         call	   BPM

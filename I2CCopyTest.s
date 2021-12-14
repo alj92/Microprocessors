@@ -35,7 +35,7 @@ IC_INIT:
     bsf	        TRISC, PORTC_RC3_POSN, A ; pin RC3= serial clock SCLx
     bsf		TRISC, PORTC_RC4_POSN, A ;  pin RC4=serial data SDAx
 ;    banksel	LATC
-    setf	LATC
+   ; setf	LATC
 
 
 ;initialise I2C Master
@@ -188,7 +188,7 @@ IC_READ:
     
     
     banksel SSP1CON2    
-    bsf	    PEN	
+    bsf	    RSEN	
     
     return
     

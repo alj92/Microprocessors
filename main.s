@@ -1,8 +1,11 @@
  #include <xc.inc>
 
  global	datain
+ 
 psect	udata_acs
-	datain: ds 4
+    datain:	ds	4
+    lineRD:	ds	1
+    limloop:	ds	1
  
  
 psect code, abs
@@ -37,32 +40,35 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   
 	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
 	   movwf    Addreg,A
-	   movlw    0x43	;configure mode  SPO2
+	   movlw    0x02	;configure mode  HRC
 	   movwf    Datareg,A
 	   call	    IC_write
-;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
-;	   movwf    Addreg,A
-;	   call	    IC_READ
-	
-	   
-	   movlw    0x07	;set mode register address =>define which mode on the heart rate click we are using
+;;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
+;;	   movwf    Addreg,A
+;;	   call	    IC_READ
+;	
+;	   
+	   movlw    0x07	;reg SPO2 configuration
 	   movwf    Addreg,A
-	   movlw    0x5F	;configure the SPO2
+	   movlw    0x00	;configure the SPO2 so we want everything to be 0
 	   movwf    Datareg,A
 	   call	    IC_write
-;	   movlw    0x07	;set mode register address =>define which mode on the heart rate click we are using
-;	   movwf    Addreg,A
-;	   call	    IC_READ
+;;	   movlw    0x07	;set mode register address =>define which mode on the heart rate click we are using
+;;	   movwf    Addreg,A
+;;	   call	    IC_READ
 	
-	   movlw    0x09	;set mode register address =>define which mode on the heart rate click we are using
+	   movlw    0x09	;LED configuration reg
 	   movwf    Addreg,A
-	   movlw    0x88	;configure the LED SPO2
+	   movlw    0x0F	;corresponds to 27.1mA + only for IR
 	   movwf    Datareg,A
 	   call	    IC_write
 ;	   movlw    0x09	;set mode register address =>define which mode on the heart rate click we are using
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
 	   
+;	   movlw    0x05	;check the interrupt status
+;	   movwf    Addreg,A
+;	   call	    IC_READ
 	   
 ;	   goto checkread
 	
@@ -78,27 +84,52 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   movlw    0x08	;7:0 data bytes of FIFO_DATA
 ;	   movwf    Datareg
 ;	   call	    IC_write
+	 
 	   
-;	   movlw    0x05	;FIFO data register adresss
-;	   movwf    Addreg,A
-;	   call	    IC_READ
-;	   movff    Datareg, datain
+	   movlw    0x00
+	   movwf    lineRD, A
 	   
-;	   call	    IC_READ
-;	   movff    Datareg, datain+1
-;	   call	    IC_READ
-;	   movff    Datareg, datain+1
-;	   call	    IC_READ
-;	   movff    Datareg, datain+1
-
+	   movlw    15
+	   movwf    limloop, A
 	   
+	   
+;loop:
+	   movlw    0x04	;reg FIFO RD PTR [3,0]
+	   movwf    Addreg,A
+	   movlw    0x02	;configure the SPO2 so we want everything to be 0
+	   movwf    Datareg,A
+	   call	    IC_write
+	   
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain+1
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain+1
+	   
+	   movlw    0x05	;FIFO data register adresss
+	   movwf    Addreg,A
+	   call	    IC_READ
+	   movff    Datareg, datain+1
 ;	    
 ;	   movlw    0x04	;FIFO read pointer register adresss
 ;	   movwf    Addreg
 ;	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
 ;	   movwf    Datareg
 	  
-
+;	   incf	    lineRD, A
+;	   decf	    limloop, A
+;	   
+;	   return
 
 
 	   goto	    start

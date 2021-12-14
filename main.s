@@ -1,10 +1,10 @@
  #include <xc.inc>
 
- global	datain1, datain2
+ global	datain3, datain4
  
 psect	udata_acs
-    datain1:	    ds	    4
-    datain2:	    ds	    4
+    datain3:	    ds	    8
+    datain4:	    ds	    8
     Interruptbit:   ds	    1
     
  
@@ -16,7 +16,7 @@ extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
 extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subroutines
 extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
-extrn BPM, goodmessage, restmessage, adjustmessage	    ; external function to write the BPM= and the message on the LCD
+extrn  goodmessage, restmessage, adjustmessage;, data_value	    ; external function to write the BPM= and the message on the LCD      BPM,
 extrn IC_INIT, IC_write, IC_READ, Addreg, Datareg
 
  
@@ -32,7 +32,7 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   call	   initiate
 	   
 	   call	   clear
-;	   call    LCD_Setup	    ; setup LCD: PORTB
+	   call    LCD_Setup	    ; setup LCD: PORTB
 ;	   call	   UART_Setup
 
 	   call	   IC_INIT
@@ -109,22 +109,22 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1
+	   movff    Datareg, datain3
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain3+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain3+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain3+1
 	   
 	   
 	   movlw    0x04	;FIFO read pointer
@@ -136,24 +136,29 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain2+1
+	   movff    Datareg, datain4+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain2+1
+	   movff    Datareg, datain4+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain2+1
+	   movff    Datareg, datain4+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain2+1
+	   movff    Datareg, datain4+1
 	   
 	   
+;	   call	   clear
+;	   call    LCD_Setup
+;	   call	   data_value
+;
+
 ;	   movlw    0x04	;FIFO read pointer register adresss
 ;	   movwf    Addreg
 ;	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
@@ -183,8 +188,7 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 
 	    
 start:
-    
-        call	   BPM
+	;call	    BPM
 	
 	;call print my BPM
 
@@ -218,8 +222,7 @@ clear:
 	call	LCD_Write_Instruction
 	return
 
- 
-checkread:  
+
 	
 	
 	

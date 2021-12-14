@@ -144,21 +144,3 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	return			; carry reset so return
 
 
-	
-;LCD_Write_Hex:			; Writes byte stored in W as hex
-;	movwf	LCD_hex_tmp, A
-;	swapf	LCD_hex_tmp, W, A	; high nibble first
-;	call	LCD_Hex_Nib
-;	movf	LCD_hex_tmp, W, A	; then low nibble
-	
-;LCD_Hex_Nib:			; writes low nibble as hex character
-;	andlw	0x0F
-;	movwf	LCD_tmp, A
-;	movlw	0x0A
-;	cpfslt	LCD_tmp, A
-;	addlw	0x07		; number is greater than 9 
-;	addlw	0x26
-;	addwf	LCD_tmp, W, A
-;	call	LCD_Send_Byte_D ; write out ascii
-;	return	
-

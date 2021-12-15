@@ -1,22 +1,32 @@
  #include <xc.inc>
 
- global	datain3, datain4
+ global	datain1, datain2
  
+psect data   
+
+test_data:
+	db	0x01, 0x02, 0x03, 0x04
+	counterl EQU 0x04  
+	align	2 
+ 
+
 psect	udata_acs
-    datain3:	    ds	    8
-    datain4:	    ds	    8
+    datain1:	    ds	    4
+    datain2:	    ds	    4
     Interruptbit:   ds	    1
+    counter:	    ds	    1
     
- 
+psect udata_bank4 
+    message_data:   ds	    0x80    
+
+    
 psect code, abs
 
- 
-;extrn sensor_setup, portcsetup, loopsensor, sensorread	    ; external heart rate click
 extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
 extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subroutines
-extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
+;extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
 extrn initiate						    ; external timer subroutine
-extrn  goodmessage, restmessage, adjustmessage;, data_value	    ; external function to write the BPM= and the message on the LCD      BPM,
+extrn  BPM, goodmessage, restmessage, adjustmessage		    ;, data_value,   external function to write the BPM= and the message on the LCD      BPM,
 extrn IC_INIT, IC_write, IC_READ, Addreg, Datareg
 
  
@@ -109,22 +119,22 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain3
+	   movff    Datareg, datain1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain3+1
+	   movff    Datareg, datain1+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain3+1
+	   movff    Datareg, datain1+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain3+1
+	   movff    Datareg, datain1+1
 	   
 	   
 	   movlw    0x04	;FIFO read pointer
@@ -136,62 +146,80 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain4+1
+	   movff    Datareg, datain2+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain4+1
+	   movff    Datareg, datain2+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain4+1
+	   movff    Datareg, datain2+1
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain4+1
+	   movff    Datareg, datain2+1
 	   
+;;;;;;;;;;;;;;;;UART;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	   
 	   
-;	   call	   clear
-;	   call    LCD_Setup
-;	   call	   data_value
-;
+	   call	    UART_Setup
+	   lfsr	    0, message_data
+	   movlw    4		;bytes to read
+	   movwf    counter, A
 
-;	   movlw    0x04	;FIFO read pointer register adresss
-;	   movwf    Addreg
-;	   movlw    0x04	;3:0 data bytes of FIFO_RD_PTR
-;	   movwf    Datareg
-	  
-;	   incf	    lineRD, A
-;	   decf	    limloop, A
-;	   
-;	   return
+
+loop: 	
+	   movff    datain1, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
+	   decfsz   counter, A		; count down to zero
+	   bra	    loop		; keep going until finished
+
+	   movlw    4
+	   lfsr	    2, message_data
+	   call	    UART_Transmit_Message
+
+setup_LED:			    ;LED data sent check
+	    movlw	0x00
+	    movwf	TRISG, A	    ;set as output
+	    goto table_read
+
+
+
+table_read:				;to read test_data	
+	lfsr	0, message_data		; Load FSR0 with address in RAM	
+	movlw	low highword(test_data)	; address of data
+ 	movwf	TBLPTRU, A		; upper bits to TBLPTRU
+	movlw	high(test_data)		; address of data
+	movwf	TBLPTRH, A		; high byte to TBLPTRH
+	movlw	low(test_data)		; address of data
+	movwf	TBLPTRL, A		; llow byte to TBLPTRL
+	
+	movlw	4			; length of bytes to read
+	movwf 	counter, A	
+
+
+loop_table_read:
+        tblrd*+				; move one byte to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
+	movff	TABLAT, PORTG
+	
+	
+	decfsz	counter, A		; count counter down to zero
+	bra	loop_table_read		; loop until finished
+	goto	start
 
 	 
-	  ; goto	    $
 	   
     
-	   ;********* Main Programme *************
-	   
-;measure_loop:
-;	call	ADC_Read
-;	movf	ADRESH, W, A
-;	call	LCD_Write_Message
-;	movf	ADRESL, W, A
-;	call	LCD_Write_Message
-;	goto	start		; goto current line in code
-	   
 	
-	; ******* Main programme ****************************************
+	; ******* Display Message LCD ****************************************
 
 	    
 start:
-	;call	    BPM
+	call	    BPM
 	
-	;call print my BPM
-
 	;***** if statements to choose the correct message (using dummy frequency)**********
 	
 	movlw	   150		    ;dummy frequency

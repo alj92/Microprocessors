@@ -23,6 +23,7 @@
       <itemPath>messagestocall.s</itemPath>
       <itemPath>I2C.s</itemPath>
       <itemPath>I2CCopyTest.s</itemPath>
+      <itemPath>UARTCopyTest.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

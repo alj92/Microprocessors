@@ -49,7 +49,7 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movwf    Addreg,A
 	   movlw    0x02	;configure mode  HRC
 	   movwf    Datareg,A
-	   call	    IC_write
+	   call	    IC_write	
 ;;	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
 ;;	   movwf    Addreg,A
 ;;	   call	    IC_READ
@@ -204,8 +204,6 @@ loop_table_read:
 	call	    UART_Transmit_Message
 	goto	    start
 	
-	;**********Hex conversion***********
-
 	
 	; ******* Display Message LCD ****************************************
 

@@ -5,8 +5,8 @@
 psect data   
 
 test_data:
-	db	0x01, 0x02, 0x03, 0x04
-	counterl EQU 0x04  
+	db	'4', '4', '4', '4';, 0x0a		
+	counterl EQU 4  
 	align	2 
  
 
@@ -16,7 +16,7 @@ psect	udata_acs
     Interruptbit:   ds	    1
     counter:	    ds	    1
     
-psect udata_bank4 
+psect  udata_bank4 
     message_data:   ds	    0x80    
 
     
@@ -24,10 +24,10 @@ psect code, abs
 
 extrn UART_Setup, UART_Transmit_Message		    ; external uart subroutines
 extrn LCD_Setup, LCD_Write_Message, LCD_Write_Instruction   ; external LCD subroutines
-;extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   
-extrn initiate						    ; external timer subroutine
+;extrn ADC_Setup, ADC_Read				    ; external ADC subroutines   					    ; external timer subroutine
 extrn  BPM, goodmessage, restmessage, adjustmessage		    ;, data_value,   external function to write the BPM= and the message on the LCD      BPM,
 extrn IC_INIT, IC_write, IC_READ, Addreg, Datareg
+;extrn HexDec_Convert
 
  
 psect code, abs   
@@ -39,12 +39,9 @@ rst:
 	  
 setup:     bcf     CFGS		    ; point to Flash program memory 
            bsf     EEPGD	    ; access Flash program memory
-;	   call	   initiate
 	   
 	   call	   clear
 	   call    LCD_Setup	    ; setup LCD: PORTB
-;	   call	   UART_Setup
-
 	   call	   IC_INIT
 
 ;;;;;;;;;;;;;;;;; Configure the Heart rate click;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -163,27 +160,20 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   call	    IC_READ
 	   movff    Datareg, datain2+1
 	   
-;;;;;;;;;;;;;;;;UART;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	   
+
+	   ;;;;;;;;;;;;;;;;UART;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	   
 	   
 	   call	    UART_Setup
-	   lfsr	    0, message_data
-	   movlw    4		;bytes to read
-	   movwf    counter, A
+
+;	   lfsr	    0, message_data
+;	   movlw    4		;bytes to read
+;	   movwf    counter, A
 
 
-loop: 	
-	   movff    datain1, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
-	   decfsz   counter, A		; count down to zero
-	   bra	    loop		; keep going until finished
-
-	   movlw    4
-	   lfsr	    2, message_data
-	   call	    UART_Transmit_Message
-
-setup_LED:			    ;LED data sent check
-	    movlw	0x00
-	    movwf	TRISG, A	    ;set as output
-	    goto table_read
+;setup_LED:			    ;LED data sent check
+;	    movlw	0x00
+;	    movwf	TRISG, A	    ;set as output
+;	    goto table_read
 
 
 
@@ -196,23 +186,26 @@ table_read:				;to read test_data
 	movlw	low(test_data)		; address of data
 	movwf	TBLPTRL, A		; llow byte to TBLPTRL
 	
-	movlw	4			; length of bytes to read
+	movlw	counterl			; length of bytes to read
 	movwf 	counter, A	
 
 
 loop_table_read:
         tblrd*+				; move one byte to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
-	movff	TABLAT, PORTG
+	movff	    TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
+;	movff	    TABLAT, PORTG
 	
-	
-	decfsz	counter, A		; count counter down to zero
-	bra	loop_table_read		; loop until finished
-	goto	start
+	decfsz	    counter, A		; count counter down to zero
+	bra	    loop_table_read		; loop until finished
 
-	 
-	   
-    
+	movlw	    counterl
+	lfsr	    2, message_data
+
+	call	    UART_Transmit_Message
+	goto	    start
+	
+	;**********Hex conversion***********
+
 	
 	; ******* Display Message LCD ****************************************
 
@@ -251,10 +244,8 @@ clear:
 	return
 
 
-	
-	
-	
-	
+		
+   
 
 ;measure_loop:
 

@@ -13,7 +13,10 @@ UART_Setup:
 ;BRG16=0
 ;BRGH=0
 ;Baud Rate using FOSC/[64 (n + 1)]	where FOSC = 64MHz
-
+;    banksel	OSCCON
+;    clrf	OSCCON
+;    movlw	01111011
+;    movwf	OSCCON,A
 
     banksel	RCSTA1
     clrf	RCSTA1
@@ -48,11 +51,6 @@ UART_Transmit_Byte:		; Transmits byte stored in W
     movwf   TXREG1, A
     return
 
-
-
-
-	
-	
-	end
+end
 
 

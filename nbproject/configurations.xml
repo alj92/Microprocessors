@@ -18,13 +18,9 @@
       <itemPath>Heartrateclick.s</itemPath>
       <itemPath>FindFrequency.s</itemPath>
       <itemPath>ADC.s</itemPath>
-      <itemPath>UART.s</itemPath>
-      <itemPath>Timer.s</itemPath>
       <itemPath>messagestocall.s</itemPath>
-      <itemPath>I2C.s</itemPath>
       <itemPath>I2CCopyTest.s</itemPath>
       <itemPath>UARTCopyTest.s</itemPath>
-      <itemPath>Hex_convert.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

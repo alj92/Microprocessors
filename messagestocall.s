@@ -42,7 +42,6 @@ psect	message_code,class=CODE
 
 BPM: 
 	   lfsr		 0, myArray		; Load FSR0 with address in RAM    
-           ; put if loop here to change the code depending on the frequency !!
            movlw         low highword(myTable4)  ; address of data in PM
            movwf         TBLPTRU, A		; load upper bits to TBLPTRU
            movlw         high(myTable4)		; address of data in PM
@@ -57,12 +56,9 @@ BPMloop:
 	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
            movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
            decfsz          counter, A           ; count down to zero
-           bra		   BPMloop			; keep going until finished
-           movlw	   myTable_4		; output message to UART
-;           lfsr		   2, myArray
-;           call		   UART_Transmit_Message
-	   
-	   movlw	   10000000B	; position address instruction -> to write on the first line
+           bra		   BPMloop		; keep going until finished
+           movlw	   myTable_4		; output message to UART	   
+	   movlw	   10000000B		; position address instruction -> to write on the first line
 	   call		   LCD_Write_Instruction
 
            movlw	   myTable_4		; output message to LCD
@@ -89,11 +85,9 @@ goodloop:
 	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
            movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
            decfsz          counter, A           ; count down to zero
-           bra		   goodloop			; keep going until finished
+           bra		   goodloop		; keep going until finished
            movlw	   myTable_0		; output message to UART
-;           lfsr		   2, myArray
-;           call		   UART_Transmit_Message
-	   
+
 	   movlw	   11000000B	; position address instruction -> to write on the second line
 	   call		   LCD_Write_Instruction
 
@@ -119,10 +113,10 @@ restloop:
 	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
            movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
            decfsz          counter, A           ; count down to zero
-           bra		   restloop			; keep going until finished
+           bra		   restloop		; keep going until finished
            movlw	   myTable_2		; output message to UART
 	   
-	   movlw	   11000000B	; position address instruction -> to write on the second line
+	   movlw	   11000000B		; position address instruction -> to write on the second line
 	   call		   LCD_Write_Instruction
 
            movlw	   myTable_2		; output message to LCD
@@ -140,56 +134,26 @@ adjustmessage:
            movwf         TBLPTRH, A		; load high byte to TBLPTRH
            movlw         low(myTable3)		; address of data in PM
            movwf         TBLPTRL, A		; load low byte to TBLPTRL
-           movlw         myTable_3	; bytes to read
+           movlw         myTable_3		; bytes to read
            movwf         counter, A             ; our counter register
 adjustloop:	
 	    
 	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
            movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
            decfsz          counter, A           ; count down to zero
-           bra		   adjustloop			; keep going until finished
+           bra		   adjustloop		; keep going until finished
            movlw	   myTable_3		; output message to UART
-;           lfsr		   2, myArray
-;           call		   UART_Transmit_Message
+
 	   
-	   movlw	   11000000B	; position address instruction -> to write on the second line
+	   movlw	   11000000B		; position address instruction -> to write on the second line
 	   call		   LCD_Write_Instruction
 
-           movlw	   myTable_3	; output message to LCD
+           movlw	   myTable_3		; output message to LCD
 						; don't send the final carriage return to LCD
            lfsr		   2, myArray
            call		   LCD_Write_Message
 	   return
 	
-	   
-;data_value: 
-;	   lfsr		 0, myArray		; Load FSR0 with address in RAM    
-;           ; put if loop here to change the code depending on the frequency !!
-;           movlw         low highword(datain1)  ; address of data in PM
-;           movwf         TBLPTRU, A		; load upper bits to TBLPTRU
-;           movlw         high(datain1)		; address of data in PM
-;           movwf         TBLPTRH, A		; load high byte to TBLPTRH
-;           movlw         low(datain1)		; address of data in PM
-;           movwf         TBLPTRL, A		; load low byte to TBLPTRL
-;           movlw         datain1		; bytes to read
-;           movwf         counter, A             ; our counter register
-; 
-;data_value_loop:
-;	   tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
-;           movff	   TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0   
-;           decfsz          counter, A           ; count down to zero
-;           bra		   data_value_loop			; keep going until finished
-;           movlw	   datain1		; output message to UART
-;;           lfsr		   2, myArray
-;;           call		   UART_Transmit_Message
-;	   
-;	   movlw	   10000000B	; position address instruction -> to write on the first line
-;	   call		   LCD_Write_Instruction
-;
-;           movlw	   datain1		; output message to LCD
-;						; don't send the final carriage return to LCD
-;           lfsr		   2, myArray
-;           call		   LCD_Write_Message
-;	   return
+	  
 	   
 	   end

@@ -5,14 +5,16 @@
 psect data   
 
 test_data:
-	db	'4', '4', '4', '4';, 0x0a		
+	db	'T', 'e', 's', 't';, 0x0a		
 	counterl EQU 4  
 	align	2 
  
 
 psect	udata_acs
-    datain1:	    ds	    4
-    datain2:	    ds	    4
+    datain1:	    ds	    1
+    datain2:	    ds	    1
+    datain3:	    ds	    1
+    datain4:	    ds	    1
     Interruptbit:   ds	    1
     counter:	    ds	    1
     
@@ -39,10 +41,11 @@ rst:
 	  
 setup:     bcf     CFGS		    ; point to Flash program memory 
            bsf     EEPGD	    ; access Flash program memory
-	   
+	   clrf	   datain1
 	   call	   clear
 	   call    LCD_Setup	    ; setup LCD: PORTB
 	   call	   IC_INIT
+	   call	    UART_Setup
 
 ;;;;;;;;;;;;;;;;; Configure the Heart rate click;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	   movlw    0x06	;set mode register address =>define which mode on the heart rate click we are using
@@ -98,11 +101,11 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x00	;corresponds to 27.1mA + only for IR
 	   movwf    Datareg,A
 	   call	    IC_write
-
+	   goto	    read_loop
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Read the data ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	   
-
+	   ;;;;;;;;;;;;;;;;Collecting data to datain1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	 
 ;	   movlw    0x00	;Interrupt status
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
@@ -112,7 +115,7 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;	   CPFSEQ   Interruptbit, A
 ;	   goto	    $-8
 	   
-	   
+read_loop:	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
@@ -121,88 +124,90 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain2
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain3
 	   
 	   movlw    0x05	;FIFO data register adresss
 	   movwf    Addreg,A
 	   call	    IC_READ
-	   movff    Datareg, datain1+1
+	   movff    Datareg, datain4
+;	   
+	   call	    write_data_to_message_data
+	   bra	    read_loop
+	   
+;read_loop1:	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+	   
+;	   movlw    0x04	;FIFO read pointer
+;	   movwf    Addreg,A
+;	   movlw    0x01	;corresponds to 27.1mA + only for IR
+;	   movwf    Datareg,A
+;	   call	    IC_write
+	   
+	   ;;;;;;;;;;;;;;;;Collecting data to datain2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	 
+;
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+;	   
+;	   movlw    0x05	;FIFO data register adresss
+;	   movwf    Addreg,A
+;	   call	    IC_READ
+;	   movff    Datareg, datain2+1
+	   
+	   ;;;;;;;;;;;;;;;;Setting up PORTH as LED data output;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	   
+	   
+	   movlw    0x00
+	   movwf    TRISH
+	   movff    datain1, PORTH
 	   
 	   
-	   movlw    0x04	;FIFO read pointer
-	   movwf    Addreg,A
-	   movlw    0x01	;corresponds to 27.1mA + only for IR
-	   movwf    Datareg,A
-	   call	    IC_write
 
-	   movlw    0x05	;FIFO data register adresss
-	   movwf    Addreg,A
-	   call	    IC_READ
-	   movff    Datareg, datain2+1
-	   
-	   movlw    0x05	;FIFO data register adresss
-	   movwf    Addreg,A
-	   call	    IC_READ
-	   movff    Datareg, datain2+1
-	   
-	   movlw    0x05	;FIFO data register adresss
-	   movwf    Addreg,A
-	   call	    IC_READ
-	   movff    Datareg, datain2+1
-	   
-	   movlw    0x05	;FIFO data register adresss
-	   movwf    Addreg,A
-	   call	    IC_READ
-	   movff    Datareg, datain2+1
-	   
-
-	   ;;;;;;;;;;;;;;;;UART;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	   
-	   
-	   call	    UART_Setup
-
-;	   lfsr	    0, message_data
-;	   movlw    4		;bytes to read
-;	   movwf    counter, A
-
-
-;setup_LED:			    ;LED data sent check
-;	    movlw	0x00
-;	    movwf	TRISG, A	    ;set as output
-;	    goto table_read
-
-
-
-table_read:				;to read test_data	
-	lfsr	0, message_data		; Load FSR0 with address in RAM	
-	movlw	low highword(test_data)	; address of data
- 	movwf	TBLPTRU, A		; upper bits to TBLPTRU
-	movlw	high(test_data)		; address of data
-	movwf	TBLPTRH, A		; high byte to TBLPTRH
-	movlw	low(test_data)		; address of data
-	movwf	TBLPTRL, A		; llow byte to TBLPTRL
-	
-	movlw	counterl			; length of bytes to read
-	movwf 	counter, A	
-
-
-loop_table_read:
-        tblrd*+				; move one byte to TABLAT, increment TBLPRT
-	movff	    TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
-;	movff	    TABLAT, PORTG
-	
-	decfsz	    counter, A		; count counter down to zero
-	bra	    loop_table_read		; loop until finished
-
-	movlw	    counterl
+write_data_to_message_data:
+        lfsr	2, message_data	 
+	movff   datain1, POSTINC2
+	movlw	1
 	lfsr	    2, message_data
-
+	call	UART_Transmit_Message
+	
+	movff   datain2, POSTINC2
+	movlw	1
+	lfsr	    2, message_data
 	call	    UART_Transmit_Message
-	goto	    start
+	return
 	
 	
 	; ******* Display Message LCD ****************************************
@@ -332,3 +337,23 @@ clear:
 ;        
 
  
+;table_read:				;to read test_data	
+;	lfsr	0, message_data		; Load FSR0 with address in RAM	
+;	movlw	datain1			; address of data
+; 	movwf	TBLPTRU, A		; upper bits to TBLPTRU
+;	movlw	high(datain1)		; address of data
+;	movwf	TBLPTRH, A		; high byte to TBLPTRH
+;	movlw	low(datain1)		; address of data
+;	movwf	TBLPTRL, A		; llow byte to TBLPTRL
+;	
+;	movlw	1			; length of bytes to read
+;	movwf 	counter, A	
+;
+;
+;loop_table_read:
+;        tblrd*+			; move one byte to TABLAT, increment TBLPRT
+;	movff	    TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
+;;	movff	    TABLAT, PORTG
+;	
+;	decfsz	    counter, A		; count counter down to zero
+;	bra	    loop_table_read		; loop until finished

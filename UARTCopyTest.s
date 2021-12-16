@@ -23,11 +23,11 @@ UART_Setup:
     bsf		SPEN		; enable
     banksel	TXSTA1
     bcf		SYNC		; asynchronous mode =0
-    bcf		BRGH		; slow speed from high baud rate selection
+    bsf		BRGH		; slow speed from high baud rate selection
     bsf		TXEN		; enable transmit
     banksel	BAUDCON1
     bcf		BRG16		; 8-bit generator only when =0
-    movlw	103		; gives 9600 Baud rate (actually 9615)
+    movlw	34		; gives 9600 Baud rate (actually 9615) - baud rate 115200
     movwf	SPBRG1, A   	; set baud rate - register controls baud rate
     banksel	TRISC
     bsf		TRISC, PORTC_TX1_POSN, A	; TX1 pin is output on RC6 pin

@@ -131,7 +131,7 @@ IC_READ:
 				    ;ACKSTAT bit of the SSPxCON2 register.
     btfss   SSP1IF		    ;The MSSPx module generates an interrupt at the end     PIR1, 
     bra	    $-2			    ;of the ninth clock cycle by setting the SSPxIF bit.
-    bcf	    SSP1IF		    ;SSPxIF is cleared by software.    PIR1, 
+    bcf	    SSP1IF		    ;SSPxIF is cleared by software.    PIR1
     
 
     

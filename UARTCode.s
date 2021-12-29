@@ -20,21 +20,21 @@ UART_Setup:
 
     banksel	RCSTA1
     clrf	RCSTA1
-    bsf		SPEN		; enable
+    bsf		SPEN				; enable
     banksel	TXSTA1
-    bcf		SYNC		; asynchronous mode =0
-    bsf		BRGH		; slow speed from high baud rate selection
-    bsf		TXEN		; enable transmit
+    bcf		SYNC				; asynchronous mode =0
+    bsf		BRGH				; slow speed from high baud rate selection
+    bsf		TXEN				; enable transmit
     banksel	BAUDCON1
-    bcf		BRG16		; 8-bit generator only when =0
-    movlw	34		; gives 9600 Baud rate (actually 9615) - baud rate 115200
-    movwf	SPBRG1, A   	; set baud rate - register controls baud rate
+    bcf		BRG16				; 8-bit generator only when =0
+    movlw	34				; gives 9600 Baud rate (actually 9615) - baud rate 115200
+    movwf	SPBRG1, A   			; set baud rate - register controls baud rate
     banksel	TRISC
     bsf		TRISC, PORTC_TX1_POSN, A	; TX1 pin is output on RC6 pin
 						; must set TRISC6 to 1
     return
 
-UART_Transmit_Message:		; Message stored at FSR2, length stored in W
+UART_Transmit_Message:				; Message stored at FSR2, length stored in W
     movwf   UART_counter, A
     
     
@@ -45,8 +45,8 @@ UART_Loop_message:
     bra	    UART_Loop_message
     return
 
-UART_Transmit_Byte:		; Transmits byte stored in W
-    btfss   TX1IF		; TX1IF is set when TXREG1 is empty
+UART_Transmit_Byte:				; Transmits byte stored in W
+    btfss   TX1IF				; TX1IF is set when TXREG1 is empty
     bra	    UART_Transmit_Byte
     movwf   TXREG1, A
     return

@@ -50,8 +50,8 @@ IC_INIT:
     banksel SSP1STAT
     clrf    SSP1STAT
     
-    banksel	SSP1ADD			    ;setting Baud rate
-    movlw   0x27		    	    ;Fosc = 16MHz ; Fclock = 400kHz use 100 ; SSP1ADD = ((Fosc / Fclock) / 4) -1
+    banksel	SSP1ADD			 ;setting Baud rate
+    movlw   0x27		    	 ;Fosc = 16MHz ; Fclock = 400kHz use 100 ; SSP1ADD = ((Fosc / Fclock) / 4) -1
     movwf   SSP1ADD
    
     
@@ -64,7 +64,7 @@ IC_write:
     bsf	    SEN		    		; Start condition 
     btfss   SSP1IF		   	;SSPxIF is set by hardware on completion of the Start (in PIR1)
     bra	    $-2
-    bcf	    SSP1IF		   	;Clear SSPxIF
+    bcf	    SSP1IF		   	;Clear SSP1IF
 
    
     
@@ -76,7 +76,7 @@ IC_write:
     
     btfss   SSP1IF		    	;Interrupt generated at the end of the ninth clock cycle by setting the SSPxIF bit (in PIR1) 
     bra	    $-2			    
-    bcf	    SSP1IF		    	;Clear SSPxIF (in PIR1)
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
     
 
     
@@ -87,25 +87,25 @@ IC_write:
 				    
     btfss   SSP1IF		    	;Interrupt generated 
     bra	    $-2			    
-    bcf	    SSP1IF		    	;Clear SSPxIF (in PIR1)
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
     
 
     movff   Datareg, SSP1BUF, A	    	;Load the SSPxBUF with eight bits of data
     banksel SSP1CON2    
-    btfsc   ACKSTAT		    	;Shift in the ACK bit from slave and writes its value into the ACKSTAT bit of the SSP1CON2 
+    btfsc   ACKSTAT		    	;Shift in the ACK bit from slave and write its value into the ACKSTAT bit of the SSP1CON2 
     bra	    $-2			    	
     
     btfss   SSP1IF		    	;Interrupt generated 
     bra	    $-2			    
-    bcf	    SSP1IF		    	;Clear SSPxIF (in PIR1)
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
 
     banksel SSP1CON2
     bsf	    RSEN		   	;Restart condition   
 				    		
 				    
-;    btfss   SSP1IF		    	;Interrupt is generated once the Stop/Restart condition is complete.   , in PIR1
+;    btfss   SSP1IF		    	;Interrupt is generated once the Stop/Restart condition is complete
 ;    bra	    $-2
-;    bcf	    SSP1IF		;Clear SSPxIF (in PIR1)
+;    bcf	    SSP1IF		;Clear SSP1IF (in PIR1)
 ;     
   
     
@@ -120,72 +120,72 @@ IC_READ:
     bsf	    SEN		    		;Start condition
     btfss   SSP1IF		    	;SSPxIF is set by hardware on completion of the Start (in PIR1)
     bra	    $-2
-    bcf	    SSP1IF		   	;Clear SSPxIF (in PIR1)
+    bcf	    SSP1IF		   	;Clear SSP1IF (in PIR1)
 
    
     
     banksel SSP1BUF    
-    movlw   0xAE		    ;Send the write control byte to the EEPROM
+    movlw   0xAE		    	;Send the slave address in write mode to EEPROM
     movwf   SSP1BUF, A
-    btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    SSP1CON2, 
-    bra	    $-2			    ;the slave device and writes its value into the
-				    ;ACKSTAT bit of the SSPxCON2 register.
-    btfss   SSP1IF		    ;The MSSPx module generates an interrupt at the end     PIR1, 
-    bra	    $-2			    ;of the ninth clock cycle by setting the SSPxIF bit.
-    bcf	    SSP1IF		    ;Clear SSPxIF (in PIR1)
+    btfsc   ACKSTAT		    	;Shift in the ACK bit from slave and write its value into the ACKSTAT bit of the SSP1CON2
+    bra	    $-2			    
+    
+    btfss   SSP1IF		    	;Interrupt generated at the end of the ninth clock cycle by setting the SSPxIF bit
+    bra	    $-2			    
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
     
 
     
-    movff   Addreg, SSP1BUF,A	    ;The user loads the SSPxBUF with the slave address to transmit    ICAddress
+    movff   Addreg, SSP1BUF,A	    	;Load the SSPxBUF with the slave address to transmit    
     banksel SSP1CON2    
-    btfsc   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from    SSP1CON2, 
-    bra	    $-2			    ;the slave device and writes its value into the
-				    ;ACKSTAT bit of the SSPxCON2 register.
-    btfss   SSP1IF		    ;The MSSPx module generates an interrupt at the end    PIR1, 
-    bra	    $-2			    ;of the ninth clock cycle by setting the SSPxIF bit.
-    bcf	    SSP1IF		    ;Clear SSPxIF (in PIR1) 
+    btfsc   ACKSTAT		    	;Shift in the ACK bit from slave and write its value into the ACKSTAT bit of the SSP1CON2
+    bra	    $-2			    
+    
+    btfss   SSP1IF		    	;Interrupt generated at the end of the ninth clock cycle by setting the SSPxIF bit
+    bra	    $-2			    
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1) 
     
 ;    movlw   0x02
 ;    movwf   delay_count
 ;    call    delay
     
     banksel SSP1CON2    
-    bsf	    SEN			    ;The user generates a Restart condition by setting the SEN bit of the SSPxCON2 register.    SSP1CON2,  
-    btfss   SSP1IF		    ;SSPxIF is set by hardware on completion of the Restart.    PIR1, 
+    bsf	    SEN			    	;Generate a Restart condition by setting the SEN bit of the SSPxCON2 register 
+    btfss   SSP1IF		    	;SSPxIF is set by hardware on completion of the Restart
     bra	    $-2
-    bcf	    SSP1IF		    ;Clear SSPxIF (in PIR1)
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
     
    
 
     banksel SSP1BUF
-    movlw   0xAF		    ;Send the read control byte to the EEPROM
+    movlw   0xAF		    	;Send the slave address in write mode to the EEPROM
     movwf   SSP1BUF, A
     banksel SSP1CON2    
-    BTFSC   ACKSTAT		    ;The MSSPx module shifts in the ACK bit from      SSP1CON2, 
-    bra	    $-2			    ;the slave device and writes its value into the
-				    ;ACKSTAT bit of the SSPxCON2 register.
-    BTFSS   SSP1IF		    ;The MSSPx module generates an interrupt at the end    PIR1,
-    bra	    $-2			    ;of the ninth clock cycle by setting the SSPxIF bit.
-    bcf	    SSP1IF		    ;Clear SSPxIF (in PIR1) 
+    BTFSC   ACKSTAT		    	;Shift in the ACK bit from slave and write its value into the ACKSTAT bit of the SSP1CON2
+    bra	    $-2			    	
+    
+    BTFSS   SSP1IF		    	;Interrupt generated at the end of the ninth clock cycle by setting the SSPxIF bit
+    bra	    $-2			    
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1) 
     
     
     banksel SSP1CON2    
-    bsf	    RCEN		    ;User sets the RCEN bit of the SSPxCON2 register    SSP1CON2,   Receive enable bit
-				    ;and the Master clocks in a byte from the slave.	    
-    btfss   SSP1IF		    ;After the 8th falling edge of SCLx, SSPxIF and BF are set.   PIR1, 
+    bsf	    RCEN		    	;Set the RCEN bit (receive enable bit) of SSPxCON2 register
+				    		    
+    btfss   SSP1IF		    	;After the 8th falling edge of SCLx, SSPxIF and BF are set (in PIR1) 
     bra	    $-2
-    bcf	    SSP1IF		    ;Master clears SSPxIF    PIR1, 
-    movff   SSP1BUF, Datareg	    ;and reads the received byte from SSPxUF    SSP1BUF, 
+    bcf	    SSP1IF		    	;Clear SSP1IF (in PIR1)
+    movff   SSP1BUF, Datareg	    	;Read the received byte from SSP1BUF
 
     
     banksel SSP1CON2
-    bsf	    ACKDT	    ;Master sets ACK value sent to slave in SSP1CON2, non acknowledge byte
-    bsf	    ACKEN	    ;ACKDT bit of the SSPxCON2 register and SSP1CON2, 
-				    ;initiates the ACK by setting the ACKEN bit			    
+    bsf	    ACKDT	    		;Master sets ACK value sent to slave in SSP1CON2 (non acknowledge byte)
+    bsf	    ACKEN	    		;ACKDT bit of the SSP1CON2 register which initiates the ACK by setting the ACKEN bit 
+				    				    
     banksel SSP1CON2    
-    btfss   SSP1IF	    ;Masters ACK is clocked out to the slave and SSPxIF is set.     PIR1, 
+    btfss   SSP1IF	    		;Masters ACK is clocked out to the slave and SSP1IF is set
     bra	    $-2
-    bcf	    SSP1IF	    ;User clears SSPxIF.    PIR1, 
+    bcf	    SSP1IF	    		;Clear SSP1IF (in PIR1) 
     
     
     banksel SSP1CON2    

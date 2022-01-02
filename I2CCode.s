@@ -51,7 +51,7 @@ IC_INIT:
     clrf    SSP1STAT
     
     banksel	SSP1ADD			 ;setting Baud rate
-    movlw   0x27		    	 ;Fosc = 16MHz ; Fclock = 400kHz use 100 ; SSP1ADD = ((Fosc / Fclock) / 4) -1
+    movlw   0x27		    	 ;Fosc = 16MHz ; Fclock = 400kHz use 100 ; SSP1ADD = (Fosc / (Fclock * 4)) -1
     movwf   SSP1ADD
    
     

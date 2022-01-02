@@ -96,22 +96,22 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 ;************* Read the data *************
 	   
 read_loop:	   
-	   movlw    0x05	;FIFO data register adresss
+	   movlw    0x05	;FIFO data register address
 	   movwf    Addreg,A
 	   call	    IC_READ
 	   movff    Datareg, datain1
 	   
-	   movlw    0x05	;FIFO data register adresss
+	   movlw    0x05	;FIFO data register address
 	   movwf    Addreg,A
 	   call	    IC_READ
 	   movff    Datareg, datain2
 	   
-	   movlw    0x05	;FIFO data register adresss
+	   movlw    0x05	;FIFO data register address
 	   movwf    Addreg,A
 	   call	    IC_READ
 	   movff    Datareg, datain3
 	   
-	   movlw    0x05	;FIFO data register adresss
+	   movlw    0x05	;FIFO data register address
 	   movwf    Addreg,A
 	   call	    IC_READ
 	   movff    Datareg, datain4
@@ -120,22 +120,22 @@ read_loop:
 	   bra	    read_loop
 	   
 ;read_loop1:	   
-;	   movlw    0x05	;FIFO data register adresss
+;	   movlw    0x05	;FIFO data register address
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
 ;	   movff    Datareg, datain2
 ;	   
-;	   movlw    0x05	;FIFO data register adresss
+;	   movlw    0x05	;FIFO data register address
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
 ;	   movff    Datareg, datain2+1
 ;	   
-;	   movlw    0x05	;FIFO data register adresss
+;	   movlw    0x05	;FIFO data register address
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
 ;	   movff    Datareg, datain2+1
 ;	   
-;	   movlw    0x05	;FIFO data register adresss
+;	   movlw    0x05	;FIFO data register address
 ;	   movwf    Addreg,A
 ;	   call	    IC_READ
 ;	   movff    Datareg, datain2+1

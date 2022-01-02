@@ -40,9 +40,9 @@ setup:     bcf     CFGS		    ; point to Flash program memory
 
 ;************* Configure the Heart rate click ***********************
 	   
-	   movlw    0x06	;register address to set the mode of the Heart Rate Click
+	   movlw    0x06	;register address to set mode of HRC
 	   movwf    Addreg,A
-	   movlw    0x02	;configure the sensor on the heart rate mode 
+	   movlw    0x02	;configure sensor on heart rate mode 
 	   movwf    Datareg,A
 	   call	    IC_write	
 ;	   movlw    0x06	;check the value in the register by reading it back

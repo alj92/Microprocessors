@@ -27,7 +27,7 @@ UART_Setup:
     bsf		TXEN				; enable transmit
     banksel	BAUDCON1
     bcf		BRG16				; 8-bit generator only when =0
-    movlw	34				; gives 9600 Baud rate (actually 9615) - baud rate 115200
+    movlw	0x03				; baud rate 125000
     movwf	SPBRG1, A   			; set baud rate - register controls baud rate
     banksel	TRISC
     bsf		TRISC, PORTC_TX1_POSN, A	; TX1 pin is output on RC6 pin
